@@ -2,9 +2,9 @@
 [Tt]emp/
 [Oo]bj/
 [Pp]ackages/
-[Pp]rojectSettings/
 [Bb]uild/
 [Bb]uilds/
+UnityGenerated/
 Assets/AssetStoreTools*
 
 # Visual Studio cache directory
@@ -40,3 +40,13 @@ sysinfo.txt
 
 # Crashlytics generated file
 Assets/StreamingAssets/crashlytics-build.properties
+
+# OS Generated
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Icon?
+ehthumbs.db
+Thumbs.db
