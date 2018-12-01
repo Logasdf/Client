@@ -14,4 +14,5 @@ public class ButtonBehavior : MonoBehaviour {
         Debug.Log("Exit Button clicked");
         Application.Quit();
     }
+  
 }
