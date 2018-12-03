@@ -4,11 +4,18 @@ using System.Threading;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
+using UnityEngine.SceneManagement;
 
 public class LobbyUIMgr : MonoBehaviour {
 
+    public GameObject modalWindowPrefab;
     public GameObject roomItem;
     public GameObject scrollContent;
+    
+    public void RequestCreateModalWindow()
+    {
+        CreateModalWindow();
+    }
 
     private Color selectedRoomColor = Color.gray;
     private Color unselectedRoomColor = Color.black;
@@ -52,9 +59,44 @@ public class LobbyUIMgr : MonoBehaviour {
         }
     }
 
+    private void CreateModalWindow() // it is possible to use enum as the argument of this func
+    {
+        Debug.Log("Successfully Executed");
+        GameObject modalWindow = (GameObject)Instantiate(modalWindowPrefab);
+        GameObject dialogWindow = modalWindow.transform.GetChild(0).gameObject;
+
+        GameObject submitBtn = dialogWindow.transform.GetChild(1).gameObject;
+        GameObject cancelBtn = dialogWindow.transform.GetChild(2).gameObject;
+
+        submitBtn.GetComponent<Button>().onClick.AddListener(delegate { SubmitCreateRoomRequest(); });
+        cancelBtn.GetComponent<Button>().onClick.AddListener(delegate { CloseModalWindow(modalWindow); });
+
+        GameObject canvas = GameObject.Find("Canvas");
+        modalWindow.transform.SetParent(canvas.transform, false);
+        modalWindow.transform.SetAsLastSibling();
+    }
+
+    public void SubmitCreateRoomRequest()
+    {
+        Debug.Log("CREATE ROOM CLICKED");
+        //TODO : Send CREATE ROOM REQUEST to the server and Get the response.
+
+        SceneManager.LoadScene("WaitingRoom");
+    }
+
+    public void CloseModalWindow(GameObject window)
+    {
+        Destroy(window);
+    }
+
     private void OnClickRoomItem()
     {
         Debug.Log("room clicked");
+        /*
+         * TODO : Send a message to the server and get the response.
+         * With that response, the appropriate code block will be executed.
+        */
+        
     }
 
     //test

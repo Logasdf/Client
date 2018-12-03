@@ -18,9 +18,18 @@ public class ServerConnection : MonoBehaviour {
     private TcpClient clientSocket;
     private NetworkStream theStream;
     private LobbyUIMgrCallBack lobbyUIMgrCallBack;
+    private static ServerConnection instance;
 
     private void Start()
     {
+        if(instance != null)
+        {
+            Destroy(gameObject);
+            return;
+        }
+
+        instance = this;
+        DontDestroyOnLoad(gameObject);
         CreateConnection();
     }
 

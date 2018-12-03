@@ -242,7 +242,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Exit
+  m_Text: EXIT
 --- !u!222 &129970906
 CanvasRenderer:
   m_ObjectHideFlags: 0
@@ -603,7 +603,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -0.000000021960316}
+  m_AnchoredPosition: {x: 0, y: -0.000000016536715}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &851721542
@@ -675,7 +675,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 308, y: -121}
+  m_AnchoredPosition: {x: 308, y: -126}
   m_SizeDelta: {x: 171.3, y: 35.1}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &960394364
@@ -932,6 +932,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c921b3934e166ea4a963226b913f5889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  modalWindowPrefab: {fileID: 1703734620276968, guid: 9337ffa460b32d8498d979d676f30630,
+    type: 2}
   roomItem: {fileID: 1309038347902524, guid: 6761ca010b1dea74f98a5c73e535f0f7, type: 2}
   scrollContent: {fileID: 851721540}
 --- !u!1 &1240570149
@@ -1373,7 +1375,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: Create
+  m_Text: CREATE
 --- !u!222 &2078986182
 CanvasRenderer:
   m_ObjectHideFlags: 0
