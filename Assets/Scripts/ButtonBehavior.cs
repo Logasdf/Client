@@ -8,7 +8,7 @@ public class ButtonBehavior : MonoBehaviour {
     public void CreateBtnClicked()
     {
         //TODO : display a dialog window to communicate with a user
-        LobbyUIMgr uiMgr = GameObject.Find("UIManager").GetComponent<LobbyUIMgr>();
+        LobbyUIMgr uiMgr = GameObject.Find(UIMANAGERSTR).GetComponent<LobbyUIMgr>();
         uiMgr.RequestCreateModalWindow();
     }
 
@@ -19,7 +19,10 @@ public class ButtonBehavior : MonoBehaviour {
 
     public void GoToGameLobby()
     {
-        SceneManager.LoadScene("GameLobby");
+        SceneManager.LoadScene(GAMELOBBYSCENESTR);
     }
-  
+
+    private const string UIMANAGERSTR = "UIManager";
+    private const string GAMELOBBYSCENESTR = "GameLobby";
+    
 }
