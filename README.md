@@ -11,7 +11,7 @@ We are doing this with Unity 3D and C#.
 - **Create a new room when the user clicks "Create" button.**
     - ~~Create and show a modal window when clicked.~~
     - ~~Close the window when the cancel button is clicked~~
-    - ~~The users will decide the name of the room and how many people they want to play with in their room.~~
+    - ~~The users will decide the name of the room and the number of people they want to play with in their room.~~
     - With the information, create a request message.
     
 ## Waiting Room (Before the game starts)
