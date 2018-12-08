@@ -52,7 +52,9 @@ public class LobbyUIMgr : MonoBehaviour {
             GameObject room = (GameObject)Instantiate(roomItem);
             var textFields = room.GetComponentsInChildren<Text>();
             textFields[0].text = "Room #" + (i + 1);
-            room.GetComponent<Button>().onClick.AddListener(delegate { OnClickRoomItem(); });
+            room.GetComponent<Button>().onClick.AddListener(delegate {
+                OnClickRoomItem(textFields[0].text);
+            });
             EventTrigger eTrigger = room.AddComponent<EventTrigger>();
             InitEventTriggerForRoomItem(eTrigger, room);
             room.transform.SetParent(scrollContent.transform, false);
@@ -65,22 +67,27 @@ public class LobbyUIMgr : MonoBehaviour {
         GameObject modalWindow = (GameObject)Instantiate(modalWindowPrefab);
         GameObject dialogWindow = modalWindow.transform.GetChild(0).gameObject;
 
-        GameObject submitBtn = dialogWindow.transform.GetChild(1).gameObject;
-        GameObject cancelBtn = dialogWindow.transform.GetChild(2).gameObject;
+        Button submitBtn = dialogWindow.transform.Find("SubmitBtn").gameObject.GetComponent<Button>();
+        Button cancelBtn = dialogWindow.transform.Find("CancelBtn").gameObject.GetComponent<Button>();
 
-        submitBtn.GetComponent<Button>().onClick.AddListener(delegate { SubmitCreateRoomRequest(); });
-        cancelBtn.GetComponent<Button>().onClick.AddListener(delegate { CloseModalWindow(modalWindow); });
+        submitBtn.onClick.AddListener(delegate { SubmitCreateRoomRequest(dialogWindow); });
+        cancelBtn.onClick.AddListener(delegate { CloseModalWindow(modalWindow); });
 
         GameObject canvas = GameObject.Find("Canvas");
         modalWindow.transform.SetParent(canvas.transform, false);
         modalWindow.transform.SetAsLastSibling();
     }
 
-    public void SubmitCreateRoomRequest()
+    public void SubmitCreateRoomRequest(GameObject window)
     {
-        Debug.Log("CREATE ROOM CLICKED");
         //TODO : Send CREATE ROOM REQUEST to the server and Get the response.
+        InputField nameField = window.transform.Find("NameInputField").gameObject.GetComponent<InputField>();
+        Dropdown limitDropdown = window.transform.Find("LimitDropdown").gameObject.GetComponent<Dropdown>();
 
+        string roomName = nameField.text;
+        string selectedVal = limitDropdown.options[limitDropdown.value].text;
+
+        Debug.Log("Room name : " + roomName + ", and the selected value is " + selectedVal);
         SceneManager.LoadScene("WaitingRoom");
     }
 
@@ -89,14 +96,14 @@ public class LobbyUIMgr : MonoBehaviour {
         Destroy(window);
     }
 
-    private void OnClickRoomItem()
+    private void OnClickRoomItem(string roomName)
     {
-        Debug.Log("room clicked");
         /*
          * TODO : Send a message to the server and get the response.
          * With that response, the appropriate code block will be executed.
         */
-        
+        Debug.Log("element clicked : " + roomName);
+        //SceneManager.LoadScene("WaitingRoom");
     }
 
     //test
