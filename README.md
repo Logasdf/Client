@@ -10,9 +10,10 @@ We are doing this with Unity 3D and C#.
     - ~~Display it in a scrollview or something~~
 - **Create a new room when the user clicks "Create" button.**
     - ~~Create and show a modal window when clicked.~~
-    - The room will be named simply like "Room #Number". -> not settled on this matter
-    - user limit ? lock for a room?
-
+    - ~~Close the window when the cancel button is clicked~~
+    - ~~The users will decide the name of the room and how many people they want to play with in their room.~~
+    - With the information, create a request message.
+    
 ## Waiting Room (Before the game starts)
 - A room can accommodate up to 16 people.
 - "Game Start" button should be displayed only on the host's screen.
