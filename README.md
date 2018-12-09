@@ -13,10 +13,11 @@ We are doing this with Unity 3D and C#.
     - ~~Close the window when the cancel button is clicked~~
     - ~~The users will decide the name of the room and the number of people they want to play with in their room.~~
     - With the information, create a request message.
+- **Create a refresh button, and define a function for it**
     
 ## Waiting Room (Before the game starts)
 - A room can accommodate up to 16 people.
 - "Game Start" button should be displayed only on the host's screen.
     - For others, display "Ready" button.
-
+- Create a team-switch button, and define a function for it.
 ## In-Game Design
