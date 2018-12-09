@@ -19,6 +19,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
     private Color selectedRoomColor = Color.gray;
     private Color unselectedRoomColor = Color.black;
+    private Color nameFieldBlankColor = Color.red;
     
 	private void Awake () {
         AttachToServerAsDelegate();
@@ -34,11 +35,11 @@ public class LobbyUIMgr : MonoBehaviour {
     {
         EventTrigger.Entry entry_PointerEnter = new EventTrigger.Entry();
         entry_PointerEnter.eventID = EventTriggerType.PointerEnter;
-        entry_PointerEnter.callback.AddListener((data) => { PointerEntered(data, obj); });
+        entry_PointerEnter.callback.AddListener((data) => { ChangeObjectBgColor(obj, selectedRoomColor); });
 
         EventTrigger.Entry entry_PointerExit = new EventTrigger.Entry();
         entry_PointerExit.eventID = EventTriggerType.PointerExit;
-        entry_PointerExit.callback.AddListener((data) => { PointerExited(data, obj); });
+        entry_PointerExit.callback.AddListener((data) => { ChangeObjectBgColor(obj, unselectedRoomColor); });
 
         trigger.triggers.Add(entry_PointerEnter);
         trigger.triggers.Add(entry_PointerExit);
@@ -49,7 +50,7 @@ public class LobbyUIMgr : MonoBehaviour {
         Debug.Log("callback method called");
         for (int i = 0; i < 10; i++)
         {
-            GameObject room = (GameObject)Instantiate(roomItem);
+            GameObject room = Instantiate(roomItem);
             var textFields = room.GetComponentsInChildren<Text>();
             textFields[0].text = "Room #" + (i + 1);
             room.GetComponent<Button>().onClick.AddListener(delegate {
@@ -64,36 +65,37 @@ public class LobbyUIMgr : MonoBehaviour {
     private void CreateModalWindow() // it is possible to use enum as the argument of this func
     {
         Debug.Log("Successfully Executed");
-        GameObject modalWindow = (GameObject)Instantiate(modalWindowPrefab);
+        GameObject modalWindow = Instantiate(modalWindowPrefab);
         GameObject dialogWindow = modalWindow.transform.GetChild(0).gameObject;
 
         Button submitBtn = dialogWindow.transform.Find("SubmitBtn").gameObject.GetComponent<Button>();
         Button cancelBtn = dialogWindow.transform.Find("CancelBtn").gameObject.GetComponent<Button>();
 
         submitBtn.onClick.AddListener(delegate { SubmitCreateRoomRequest(dialogWindow); });
-        cancelBtn.onClick.AddListener(delegate { CloseModalWindow(modalWindow); });
+        cancelBtn.onClick.AddListener(delegate { Destroy(modalWindow); });
 
         GameObject canvas = GameObject.Find("Canvas");
         modalWindow.transform.SetParent(canvas.transform, false);
         modalWindow.transform.SetAsLastSibling();
     }
 
-    public void SubmitCreateRoomRequest(GameObject window)
+    private void SubmitCreateRoomRequest(GameObject window)
     {
         //TODO : Send CREATE ROOM REQUEST to the server and Get the response.
         InputField nameField = window.transform.Find("NameInputField").gameObject.GetComponent<InputField>();
-        Dropdown limitDropdown = window.transform.Find("LimitDropdown").gameObject.GetComponent<Dropdown>();
-
         string roomName = nameField.text;
+
+        if(roomName.Trim() == "")
+        {
+            nameField.GetComponent<Image>().color = nameFieldBlankColor;
+            return;
+        }
+
+        Dropdown limitDropdown = window.transform.Find("LimitDropdown").gameObject.GetComponent<Dropdown>();
         string selectedVal = limitDropdown.options[limitDropdown.value].text;
 
         Debug.Log("Room name : " + roomName + ", and the selected value is " + selectedVal);
         SceneManager.LoadScene("WaitingRoom");
-    }
-
-    public void CloseModalWindow(GameObject window)
-    {
-        Destroy(window);
     }
 
     private void OnClickRoomItem(string roomName)
@@ -106,15 +108,8 @@ public class LobbyUIMgr : MonoBehaviour {
         //SceneManager.LoadScene("WaitingRoom");
     }
 
-    //test
-    private void PointerEntered(BaseEventData data, GameObject obj) 
+    private void ChangeObjectBgColor(GameObject obj, Color color)
     {
-        obj.GetComponent<Image>().color = selectedRoomColor;
-    }
-
-    //test
-    private void PointerExited(BaseEventData data, GameObject obj)
-    {
-        obj.GetComponent<Image>().color = unselectedRoomColor;
+        obj.GetComponent<Image>().color = color;
     }
 }
