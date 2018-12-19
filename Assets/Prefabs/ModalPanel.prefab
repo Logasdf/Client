@@ -867,9 +867,9 @@ MonoBehaviour:
   m_Value: 0
   m_Options:
     m_Options:
-    - m_Text: 6
-      m_Image: {fileID: 0}
     - m_Text: 8
+      m_Image: {fileID: 0}
+    - m_Text: 10
       m_Image: {fileID: 0}
     - m_Text: 12
       m_Image: {fileID: 0}
@@ -1017,7 +1017,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 6
+  m_Text: 8
 --- !u!114 &114756450337692060
 MonoBehaviour:
   m_ObjectHideFlags: 1

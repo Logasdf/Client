@@ -20,34 +20,37 @@ public class LobbyUIMgr : MonoBehaviour {
     private Color selectedRoomColor = Color.gray;
     private Color unselectedRoomColor = Color.black;
     private Color nameFieldBlankColor = Color.red;
-    
-	private void Awake () {
-        AttachToServerAsDelegate();
-	}
 
-    private void AttachToServerAsDelegate()
+    private void Start()
     {
-        ServerConnection connection = GameObject.Find("Connection").GetComponent<ServerConnection>();
-        connection.SetLobbyUIMgrCallBack(CallBackMethod);
+        ShowRoomList(); // test
     }
 
     private void InitEventTriggerForRoomItem(EventTrigger trigger, GameObject obj)
     {
-        EventTrigger.Entry entry_PointerEnter = new EventTrigger.Entry();
-        entry_PointerEnter.eventID = EventTriggerType.PointerEnter;
+        EventTrigger.Entry entry_PointerEnter = new EventTrigger.Entry()
+        {
+            eventID = EventTriggerType.PointerEnter
+        };
         entry_PointerEnter.callback.AddListener((data) => { ChangeObjectBgColor(obj, selectedRoomColor); });
 
-        EventTrigger.Entry entry_PointerExit = new EventTrigger.Entry();
-        entry_PointerExit.eventID = EventTriggerType.PointerExit;
+        EventTrigger.Entry entry_PointerExit = new EventTrigger.Entry()
+        {
+            eventID = EventTriggerType.PointerExit
+        };
         entry_PointerExit.callback.AddListener((data) => { ChangeObjectBgColor(obj, unselectedRoomColor); });
 
         trigger.triggers.Add(entry_PointerEnter);
         trigger.triggers.Add(entry_PointerExit);
     }
 
-    private void CallBackMethod()
+    private void ShowRoomList() // argument needed
     {
-        Debug.Log("callback method called");
+        foreach (Transform child in scrollContent.transform)
+        {
+            Destroy(child.gameObject);
+        }
+            
         for (int i = 0; i < 10; i++)
         {
             GameObject room = Instantiate(roomItem);
