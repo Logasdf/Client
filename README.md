@@ -4,6 +4,8 @@ We are doing this with Unity 3D and C#.
 
 ## Game Lobby
 - ~~Connect to the server~~
+    - Self-study on how to deal with IO with C#
+    - **define PacketManager::Serialize function**
 - ~~Draw UI for the lobby~~
 - **Get the list of gamerooms from the server**
     - **Send the request to get the list of gamerooms right after the connection is established.**
