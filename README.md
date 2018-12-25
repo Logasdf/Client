@@ -5,6 +5,7 @@ We are doing this with Unity 3D and C#.
 ## Game Lobby
 - ~~Connect to the server~~
     - **Self-study on how to deal with IO with C#**
+        - [AsyncIO c# example](https://docs.microsoft.com/ko-kr/dotnet/framework/network-programming/asynchronous-client-socket-example)
     - ~~define PacketManager::Serialize function~~
 - ~~Draw UI for the lobby~~
 - **Get the list of gamerooms from the server**
