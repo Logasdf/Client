@@ -15,13 +15,13 @@ We are doing this with Unity 3D and C#.
     - ~~Close the window when the cancel button is clicked~~
     - ~~The users will decide the name of the room and the number of people they want to play with in their room.~~
     - With the information, create a request message.
-    1. **Request from the client.**
-        + **Data to post: Room Name, Limits.**
-    2. Processing on the server.
-        + Room id 생성 -> <Room Name, Rood id>형태로 저장. (만약, Room Name이 존재할 경우, reject)
-        + Room Object 생성 -> (왼쪽팀 1st, 방장, 인원수=1, limit={request.limit}, roomName={request.roomName}, 준비인원=1)
-    3. **Send response to the client, then change UI(Lobby to Room UI) at the client.**
-- **Enter a room.""
+        1. **Request from the client.**
+            + **Data to post: Room Name, Limits.**
+        2. Processing on the server.
+            + Room id 생성 -> <Room Name, Rood id>형태로 저장. (만약, Room Name이 존재할 경우, reject)
+            + Room Object 생성 -> (왼쪽팀 1st, 방장, 인원수=1, limit={request.limit}, roomName={request.roomName}, 준비인원=1)
+        3. **Send response to the client, then change UI(Lobby to Room UI) at the client.**
+- **Enter a room.**
     1. **Request from the client.**
             + **Data to post: Room ID**
     2. Processing on the server.
