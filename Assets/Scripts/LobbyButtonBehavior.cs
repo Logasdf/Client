@@ -20,6 +20,7 @@ public class LobbyButtonBehavior : MonoBehaviour {
     }
 
     private LobbyUIMgr uiMgr;
+
     private void Start()
     {
         uiMgr = GameObject.Find("UIManager").GetComponent<LobbyUIMgr>();
