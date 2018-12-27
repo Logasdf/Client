@@ -5,6 +5,8 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using System;
+using Google.Protobuf.Packet.Room;
 
 // 이 클래스는 게임로비(대기실아님) UI 처리를 담당하는 클래스
 
@@ -15,7 +17,9 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public GameObject modalWindowPrefab; // 방만들기 할 때 등장할 창
     public GameObject roomItem; // 방 목록에서 방 하나에 해당하는 객체 ( 방제목 , 방인원 )
-    public GameObject scrollContent; // 방 목록이 표시 될 스크롤 패널
+    public GameObject scrollContent; // 방 목록이 표시 될 스크롤 패널 
+
+    private PacketManager packetManager;
     
     public void RequestCreateModalWindow() // 방만들기 버튼 이벤트 리스너가 이 함수를 호출함
     {
@@ -26,11 +30,27 @@ public class LobbyUIMgr : MonoBehaviour {
     private Color unselectedRoomColor = Color.black;
     private Color nameFieldBlankColor = Color.red;
 
+    private void Awake()
+    {
+        Debug.Log(this.ToString() + " Awake()");
+        
+    }
+
     private void Start()
     {
         // Start()함수는 이 스크립트를 포함한 오브젝트가 만들어질 때 실행이 되는데 
         // 현재는 방목록을 아직 서버에서 받아오지 않기 때문에 방목록을 뿌리는 함수를 여기서 실행해서 확인중임.
-        ShowRoomList(); 
+        Debug.Log("This is a LobbyUIMgr's Start()");
+        packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
+        packetManager.SetHandleMessage(PopMessage);
+    }
+
+    public void PopMessage(object obj, Type type)
+    {
+        if(type.Name == "RoomList")
+        {
+            ShowRoomList((RoomList)obj);
+        }
     }
 
     private void InitEventTriggerForRoomItem(EventTrigger trigger, GameObject obj)
@@ -54,24 +74,25 @@ public class LobbyUIMgr : MonoBehaviour {
         trigger.triggers.Add(entry_PointerExit); 
     }
 
-    private void ShowRoomList() // 방 목록을 뿌려주는 함수
+    private void ShowRoomList(RoomList roomList) // 방 목록을 뿌려주는 함수
     {
         foreach (Transform child in scrollContent.transform)
         {
             Destroy(child.gameObject); // 함수가 실행될 때마다 이 전에 존재했던 방 오브젝트들을 지우는 작업
         }
-            
-        for (int i = 0; i < 10; i++)
+
+        foreach(Room room in roomList.Rooms)
         {
-            GameObject room = Instantiate(roomItem); // unity로 외부에서 연결해놓은 prefab을 실제 오브젝트로 동적생성
-            var textFields = room.GetComponentsInChildren<Text>(); // room은 방이름과 방인원수를 표시하는 textfield 2개로 구성되어 있는데 그거 가져오는 거
-            textFields[0].text = "Room #" + (i + 1); // 방 이름 수정하는 코드 (textFields[0] == 방 이름 텍스트필드)
-            room.GetComponent<Button>().onClick.AddListener(delegate {
-                OnClickRoomItem(textFields[0].text); // 방 하나를 나타내는 prefab에는 버튼 속성도 부여했는데 방 입장처리를 위함임, 누르면 함수 실행
+            GameObject roomObj = Instantiate(roomItem);
+            var textFields = roomObj.GetComponentsInChildren<Text>();
+            textFields[0].text = room.Name;
+            textFields[1].text = string.Format("( {0,3:D2} / {1,3:D2} )", room.Current, room.Limit);
+            roomObj.GetComponent<Button>().onClick.AddListener( delegate {
+                OnClickRoomItem(textFields[0].text);
             });
-            EventTrigger eTrigger = room.AddComponent<EventTrigger>(); // 처리하고 싶은 이벤트들 담을 통을 준비해서
-            InitEventTriggerForRoomItem(eTrigger, room); // 필요한 것만 추가할게요...
-            room.transform.SetParent(scrollContent.transform, false); // 해당 방 오브젝트를 스크롤 패널에 자식으로 등록해서 올리는 과정
+            EventTrigger eTrigger = roomObj.AddComponent<EventTrigger>(); // 처리하고 싶은 이벤트들 담을 통을 준비해서
+            InitEventTriggerForRoomItem(eTrigger, roomObj); // 필요한 것만 추가할게요...
+            roomObj.transform.SetParent(scrollContent.transform, false); // 해당 방 오브젝트를 스크롤 패널에 자식으로 등록해서 올리는 과정
         }
     }
 

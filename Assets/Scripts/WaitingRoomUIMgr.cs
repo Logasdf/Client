@@ -9,6 +9,8 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void Start()
     {
+        //Debug.Log("This is a WaitingRoomUIMgr's Start()");
+
         //test
         GameObject redList = GameObject.Find("RedTeamList"); // 빨간팀 유저정보를 그려낼 패널
         GameObject blueList = GameObject.Find("BlueTeamList"); // 파란팀 유저정보를 그려낼 패널

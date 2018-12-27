@@ -8,12 +8,19 @@ using UnityEngine;
 
 public class ServerConnection : MonoBehaviour {
     
+    // Callback method declaration...
     public delegate void ReceiveCallback(byte[] buffer);
+
+    // Setting Callback method 
     public void SetReceiveCallBack(ReceiveCallback cb)
     {
-        receiveCallback = cb;
+        //Debug.Log("SetReceiveCallBack....");
+        receiveCallback += cb;
+
+        //Debug.Log(string.Format("the num of callback methods: {0}", receiveCallback.GetInvocationList().GetLength(0)));
     }
 
+    // asynchronously send a message to the server
     public async Task SendMessage(byte[] msg, int size)
     {
         if (nStream == null)
@@ -30,9 +37,15 @@ public class ServerConnection : MonoBehaviour {
     private ReceiveCallback receiveCallback;
     private static ServerConnection instance;
 
+    private void Awake()
+    {
+        //Debug.Log(this.ToString() + " Awake()");
+    }
+
     private void Start()
     {
-        if(instance != null)
+        //Debug.Log("This is a ServerConnection's Start()");
+        if (instance != null)
         {
             Destroy(gameObject);
             return;
@@ -40,6 +53,7 @@ public class ServerConnection : MonoBehaviour {
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+        // Try to Connect to the sever...
         CreateConnection();
     }
 
@@ -69,7 +83,9 @@ public class ServerConnection : MonoBehaviour {
         //test
         const int BUF_SIZE = 2048;
         byte[] buffer = new byte[BUF_SIZE];
+        Debug.Log("Recv Start....");
         await nStream.ReadAsync(buffer, 0, BUF_SIZE);
+        Debug.Log("Recv End....");
         receiveCallback(buffer);
     }
 
