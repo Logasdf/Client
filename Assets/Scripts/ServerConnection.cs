@@ -8,12 +8,19 @@ using UnityEngine;
 
 public class ServerConnection : MonoBehaviour {
     
+    // Callback method declaration...
     public delegate void ReceiveCallback(byte[] buffer);
+
+    // Setting Callback method 
     public void SetReceiveCallBack(ReceiveCallback cb)
     {
-        receiveCallback = cb;
+        //Debug.Log("SetReceiveCallBack....");
+        receiveCallback += cb;
+
+        //Debug.Log(string.Format("the num of callback methods: {0}", receiveCallback.GetInvocationList().GetLength(0)));
     }
 
+    // asynchronously send a message to the server
     public async Task SendMessage(byte[] msg, int size)
     {
         if (nStream == null)
@@ -30,9 +37,15 @@ public class ServerConnection : MonoBehaviour {
     private ReceiveCallback receiveCallback;
     private static ServerConnection instance;
 
+    private void Awake()
+    {
+        //Debug.Log(this.ToString() + " Awake()");
+    }
+
     private void Start()
     {
-        if(instance != null)
+        //Debug.Log("This is a ServerConnection's Start()");
+        if (instance != null)
         {
             Destroy(gameObject);
             return;
@@ -40,22 +53,12 @@ public class ServerConnection : MonoBehaviour {
 
         instance = this;
         DontDestroyOnLoad(gameObject);
+        // Try to Connect to the sever...
         CreateConnection();
     }
 
     private async Task CreateConnection()
     {
-        /*
-         * 꽤 오랜시간 찾아본 결과 비동기IO를 하는 여러가지 방법이 있는 것 같음. 
-         * ManualResetEvent와 Begin~~() / End~~()함수를 이용해서 하는 방법도 있는 것 같은데
-         * await과 ~~~Async함수를 사용해서 해봤음...
-         * 우선 메소드 안에 await을 사용하려면 해당 함수의 수식어로 async가 꼭 들어가야 한다고 함..
-         * 그래서 위에도 async를 썼는데 리턴값을 Task로 하는 코드가 많이 보이는데 void로 바꿔도 상관이 없걸랑
-         * 뭔 차인가 궁금해서 검색해봤는데 일단 exception 발생 시에 차이가 존재하는 거 같음..
-         * 여튼 아래에 await socket.ConnectAsync(ADDR, PORT) 함수를 보면
-         * 저 줄이 실행이 되면 연결이 붙을 때까지 다른 걸 실행할 수 있게 한다고 함
-         * 그리고 연결이 완료되면 await 아래줄부터 실행할 수 있도록 흐름이 돌아오나봄
-         */
         socket = new TcpClient();
         await socket.ConnectAsync(ADDR, PORT);
         Debug.Log("connect completed");
@@ -69,7 +72,9 @@ public class ServerConnection : MonoBehaviour {
         //test
         const int BUF_SIZE = 2048;
         byte[] buffer = new byte[BUF_SIZE];
+        Debug.Log("Recv Start....");
         await nStream.ReadAsync(buffer, 0, BUF_SIZE);
+        Debug.Log("Recv End....");
         receiveCallback(buffer);
     }
 

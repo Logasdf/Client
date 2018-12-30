@@ -23,6 +23,7 @@ public class LobbyButtonBehavior : MonoBehaviour {
 
     private void Start()
     {
+        Debug.Log("This is a LobbyButtonBehavior's Start()");
         uiMgr = GameObject.Find("UIManager").GetComponent<LobbyUIMgr>();
     }
 }
