@@ -190,7 +190,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 507258474}
-        m_MethodName: RequestProcessForLeaveButton
+        m_MethodName: ProcessLeaveButtonEvent
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -345,8 +345,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c8620fba662beec46a425726f78f5dc0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  eachUserPrefab: {fileID: 1379870562091600, guid: c492aaa5344355e48a171e4cf4d432fb,
-    type: 2}
 --- !u!224 &621501777 stripped
 RectTransform:
   m_CorrespondingSourceObject: {fileID: 224128173093081580, guid: 71edff4de9c9f2b42939bc0a2d4a8d48,
@@ -641,7 +639,7 @@ MonoBehaviour:
     m_PersistentCalls:
       m_Calls:
       - m_Target: {fileID: 507258474}
-        m_MethodName: RequestProcessForReadyButton
+        m_MethodName: ProcessReadyButtonEvent
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -784,26 +782,11 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 114182071224466202, guid: 71edff4de9c9f2b42939bc0a2d4a8d48,
+    - target: {fileID: 114907064962883806, guid: 71edff4de9c9f2b42939bc0a2d4a8d48,
         type: 2}
-      propertyPath: m_ChildControlHeight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114182071224466202, guid: 71edff4de9c9f2b42939bc0a2d4a8d48,
-        type: 2}
-      propertyPath: m_ChildForceExpandHeight
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 224221761537203846, guid: 71edff4de9c9f2b42939bc0a2d4a8d48,
-        type: 2}
-      propertyPath: m_RootOrder
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 224255461477865720, guid: 71edff4de9c9f2b42939bc0a2d4a8d48,
-        type: 2}
-      propertyPath: m_RootOrder
-      value: 2
-      objectReference: {fileID: 0}
+      propertyPath: m_OnClick.m_PersistentCalls.m_Calls.Array.data[0].m_Target
+      value: 
+      objectReference: {fileID: 507258474}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 71edff4de9c9f2b42939bc0a2d4a8d48, type: 2}
   m_IsPrefabAsset: 0

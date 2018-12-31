@@ -2,27 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 public class WaitingRoomUIMgr : MonoBehaviour {
 
-    public GameObject eachUserPrefab;
-
-    private GameObject redList;
-    private GameObject blueList;
     private RoomContext roomContext;
     private PacketManager packetManager;
-    private Color readyColor = Color.yellow;
-    private Color notReadyColor = Color.black;
-    private GameObject[] eachUserPrefabPool;
-    
+    private WaitingRoomUIDrawer drawer;
 
-    public void RequestProcessForReadyButton()
+    public void ProcessReadyButtonEvent()
     {
         ProcessReadyButtonClickEvent();  
     }
 
-    public void RequestProcessForLeaveButton()
+    public void ProcessLeaveButtonEvent()
     {
         if (roomContext.IsReady()) // 있어도 그만 없어도 그만
             return;
@@ -32,67 +24,50 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     public void RequestProcessForTeamChange()
     {
-        ProcessTeamChangeEvent();
+        ProcessTeamChangeEventRequest();
     }
 
     private void Start()
     {
-        redList = GameObject.Find("RedTeamList"); 
-        blueList = GameObject.Find("BlueTeamList");
-        roomContext = GameObject.Find("RoomContextHolder").GetComponent<RoomContext>();
+        roomContext = RoomContext.GetInstance();
         packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
-        CreateUserPrefabPool();
-        DrawUsers();
-    }
-    
-    private void CreateUserPrefabPool()
-    { 
-        const int USERPREFAB_POOL_MAX = 16;
-        eachUserPrefabPool = new GameObject[USERPREFAB_POOL_MAX];
-        for(int i = 0; i<USERPREFAB_POOL_MAX; i++)
-        {
-           eachUserPrefabPool[i] = Instantiate(eachUserPrefab);
-        }
-    }
-
-    private void DrawUsers()
-    {
-        //TODO : ROOMCONTEXT 속에 들어있는 정보들을 이용해서 그려내기
-        //int redTeamMaxIdx = roomContext.GetRedTeamIndex();
-        //int blueTeamMaxIdx = roomContext.GetBlueTeamIndex();
-        int redTeamMaxIdx = 8; //test
-        int blueTeamMaxIdx = 8 + 8; // test
-
-        for(int i = 0; i < redTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user"+ ( i + 1 ), redList.transform);
-        for(int i = 8; i < blueTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), blueList.transform);
-    }
-
-    private void AddUserPrefabAsChildToList(int index, string name, Transform parent)
-    {
-        Text userName = eachUserPrefabPool[index].transform.Find("UserName").GetComponent<Text>();
-        userName.text = name;
-        eachUserPrefabPool[index].transform.SetParent(parent, false);
+        drawer = (WaitingRoomUIDrawer)ScriptableObject.CreateInstance("WaitingRoomUIDrawer");
     }
 
     private void ProcessReadyButtonClickEvent()
     {
         //버튼 클릭
         //TODO : **서버에 준비완료 메시지 전송**
+        Data request = new Data();
+        request.DataMap.Add("content_type", "READY_EVENT");
+        request.DataMap.Add("roomId", roomContext.GetRoomId().ToString());
+        request.DataMap.Add("position", roomContext.GetMyPosition().ToString());
+        request.DataMap.Add("ready", roomContext.IsReady() ? "true" : "false");
 
-        //pool[myPosition] => 해당 위치 게임오브젝트 찾을 수 있음
-        ChangeReadyStateColor(roomContext.GetMyPosition(), !roomContext.IsReady());
+        //packetManager.SerializeAndSend(request);
+
+        drawer.ChangeReadyStateColor(roomContext.GetMyPosition(), !roomContext.IsReady());
         roomContext.ReverseReadyState();
     }
 
-    private void ProcessTeamChangeEvent()
+    private void ProcessTeamChangeEventRequest()
     {
 
         //준비완료상태라면 해당 요청을 거부한다.
         if (roomContext.IsReady())
             return;
         //서버에 요청을 보내서 이동이 가능한지 응답을 받는다.
-        
-        /* 이건 다른함수에서..
+        Data data = new Data();
+        data.DataMap.Add("content_type", "TEAM_CHANGE");
+        data.DataMap.Add("roomId", roomContext.GetRoomId().ToString());
+        data.DataMap.Add("position", roomContext.GetMyPosition().ToString());
+
+        //packetManager.SerializeAndSend(data);
+    }
+
+    private void ProcessTeamChangeEventResponse()
+    {
+        /*
          * TODO :
          * 5. 현재 나의 팀의 유저정보 배열에서 나를 제외하고 배열을 정리한다.
          * 6. 현재 나의 팀의 idx를 감소시킨다.
@@ -100,11 +75,6 @@ public class WaitingRoomUIMgr : MonoBehaviour {
          * 8. 이동한 팀의 idx를 1 증가시킨다.
          * myPosition을 변경하고, 다시 그려낸다.
          */
-
     }
 
-    private void ChangeReadyStateColor(int index, bool toReady)
-    {
-        eachUserPrefabPool[index].GetComponent<Image>().color = toReady ? readyColor : notReadyColor;
-    }
 } 

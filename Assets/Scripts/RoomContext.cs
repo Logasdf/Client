@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class RoomContext : MonoBehaviour {
+public class RoomContext {
     //테스트용 클래스
 
     private enum EnterType
@@ -12,6 +12,7 @@ public class RoomContext : MonoBehaviour {
 
     private EnterType EnterRoomType; // 입장형식 { 방장 / 참가자 }
     private string roomName;
+    private int roomId;
     private int currentUserCount; // 현재 유저 수
     private int maxUserCount; // 해당 방의 최대 수용가능 인원
     private int myPosition;
@@ -27,11 +28,13 @@ public class RoomContext : MonoBehaviour {
 
     //GETTER SETTER
     public void ReverseReadyState() { isReady = !isReady; }
+    public void SetRoomId(int val) { roomId = val; }
     //public void SetRoomName(string val) { roomName = val; }
     public int GetCurrentUserCount() { return currentUserCount; }
     public int GetRedTeamIndex() { return redTeamArrIdx; }
     public int GetBlueTeamIndex() { return blueTeamArrIdx; }
     public int GetMyPosition() { return myPosition; }
+    public int GetRoomId() { return roomId; }
     public string GetRoomName() { return roomName; }
     public bool IsHost() { return EnterRoomType == EnterType.HOST; }
     public bool IsReady() { return isReady; }
@@ -67,20 +70,21 @@ public class RoomContext : MonoBehaviour {
         blueTeamArrIdx++;
     }
 
-    private void Start () {
-		
-        if(instance != null)
+    public static RoomContext GetInstance() {
+		// 싱글턴 제대로 필요 지금은 테스트중이라
+        if(instance == null)
         {
-            Destroy(gameObject);
-            return;
+            instance = new RoomContext();
         }
 
-        //initialize
-        instance = this;
+        return instance;
+	}
+
+    private RoomContext()
+    {   //initialize
         redTeamPlayers = new List<string>();
         blueTeamPlayers = new List<string>();
         redTeamArrIdx = blueTeamArrIdx = 0;
-        DontDestroyOnLoad(gameObject);
-	}
+    }
 
 }

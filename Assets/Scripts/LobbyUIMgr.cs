@@ -37,7 +37,7 @@ public class LobbyUIMgr : MonoBehaviour {
         Debug.Log("This is a LobbyUIMgr's Start()");
         packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
         packetManager.SetHandleMessage(PopMessage);
-        roomContext = GameObject.Find("RoomContextHolder").GetComponent<RoomContext>();
+        roomContext = RoomContext.GetInstance();
     }
 
     public void PopMessage(object obj, Type type)
