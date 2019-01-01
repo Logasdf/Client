@@ -7,6 +7,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using System;
 using Google.Protobuf.Packet.Room;
+using Assets.Scripts;
 
 // 이 클래스는 게임로비(대기실아님) UI 처리를 담당하는 클래스
 
@@ -47,8 +48,21 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public void PopMessage(object obj, Type type)
     {
-        if(type.Name == "RoomList")
+        if(type.Name == "Int32")
         {
+            int response = (int)obj;
+            if(response == MessageType.ACCEPT)
+            {
+                Debug.Log("Accepted!!");
+            }
+            else if(response == MessageType.REJECT)
+            {
+                Debug.Log("Rejected...");
+            }
+        }
+        else if(type.Name == "RoomList")
+        {
+            Debug.Log("Show Room List");
             ShowRoomList((RoomList)obj);
         }
     }
@@ -76,6 +90,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
     private void ShowRoomList(RoomList roomList) // 방 목록을 뿌려주는 함수
     {
+        Debug.Log("RoomList Initialized!!");
         foreach (Transform child in scrollContent.transform)
         {
             Destroy(child.gameObject); // 함수가 실행될 때마다 이 전에 존재했던 방 오브젝트들을 지우는 작업
@@ -130,7 +145,13 @@ public class LobbyUIMgr : MonoBehaviour {
         string selectedVal = limitDropdown.options[limitDropdown.value].text; // 선택 값 추출
 
         Debug.Log("Room name : " + roomName + ", and the selected value is " + selectedVal);
-        SceneManager.LoadScene("WaitingRoom");
+
+        //SceneManager.LoadScene("WaitingRoom");
+        Room newRoom = new Room();
+        newRoom.Name = roomName;
+        newRoom.Limit = Int32.Parse(selectedVal);
+        packetManager.PackMessage(protoObj: newRoom);
+        newRoom = null;
     }
 
     private void OnClickRoomItem(string roomName) // 방 입장

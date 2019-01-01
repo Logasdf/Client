@@ -16,8 +16,6 @@ public class ServerConnection : MonoBehaviour {
     {
         //Debug.Log("SetReceiveCallBack....");
         receiveCallback += cb;
-
-        //Debug.Log(string.Format("the num of callback methods: {0}", receiveCallback.GetInvocationList().GetLength(0)));
     }
 
     // asynchronously send a message to the server
@@ -37,6 +35,8 @@ public class ServerConnection : MonoBehaviour {
     private ReceiveCallback receiveCallback;
     private static ServerConnection instance;
 
+    private bool isEnd;
+
     private void Awake()
     {
         //Debug.Log(this.ToString() + " Awake()");
@@ -51,10 +51,19 @@ public class ServerConnection : MonoBehaviour {
             return;
         }
 
+        isEnd = false;
         instance = this;
         DontDestroyOnLoad(gameObject);
         // Try to Connect to the sever...
         CreateConnection();
+    }
+
+    private void OnDestroy()
+    {
+        Debug.Log("ServerConnection OnDestroy()");
+        isEnd = true;
+        nStream.Close();
+        //socket.Close();
     }
 
     private async Task CreateConnection()
@@ -84,9 +93,11 @@ public class ServerConnection : MonoBehaviour {
         const int BUF_SIZE = 2048;
         byte[] buffer = new byte[BUF_SIZE];
         Debug.Log("Recv Start....");
-        await nStream.ReadAsync(buffer, 0, BUF_SIZE);
-        Debug.Log("Recv End....");
-        receiveCallback(buffer);
+        while(!isEnd)
+        {
+            await nStream.ReadAsync(buffer, 0, BUF_SIZE);
+            receiveCallback(buffer);
+        }
     }
 
 }
