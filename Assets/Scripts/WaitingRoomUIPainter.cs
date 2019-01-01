@@ -3,8 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 
-public class WaitingRoomUIDrawer : ScriptableObject {
-
+public class WaitingRoomUIPainter : ScriptableObject {
     private GameObject eachUserPrefab;
     private GameObject redList;
     private GameObject blueList;
@@ -22,7 +21,7 @@ public class WaitingRoomUIDrawer : ScriptableObject {
     }
 
     public void ChangeReadyStateColor(int index, bool toReady)
-    {   
+    {
         eachUserPrefabPool[index].GetComponent<Image>().color = toReady ? readyColor : notReadyColor;
     }
 
@@ -52,5 +51,4 @@ public class WaitingRoomUIDrawer : ScriptableObject {
         userName.text = name;
         eachUserPrefabPool[index].transform.SetParent(parent, false);
     }
-
 }

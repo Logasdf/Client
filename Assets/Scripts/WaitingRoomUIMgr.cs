@@ -7,7 +7,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private RoomContext roomContext;
     private PacketManager packetManager;
-    private WaitingRoomUIDrawer drawer;
+    private WaitingRoomUIPainter painter;
 
     public void ProcessReadyButtonEvent()
     {
@@ -31,7 +31,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     {
         roomContext = RoomContext.GetInstance();
         packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
-        drawer = (WaitingRoomUIDrawer)ScriptableObject.CreateInstance("WaitingRoomUIDrawer");
+        painter = (WaitingRoomUIPainter)ScriptableObject.CreateInstance("WaitingRoomUIPainter");
     }
 
     private void ProcessReadyButtonClickEvent()
@@ -46,7 +46,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
         //packetManager.SerializeAndSend(request);
 
-        drawer.ChangeReadyStateColor(roomContext.GetMyPosition(), !roomContext.IsReady());
+        painter.ChangeReadyStateColor(roomContext.GetMyPosition(), !roomContext.IsReady());
         roomContext.ReverseReadyState();
     }
 
