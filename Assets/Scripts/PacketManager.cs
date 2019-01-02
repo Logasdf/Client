@@ -106,6 +106,16 @@ public class PacketManager : MonoBehaviour {
         Array.Clear(sendBuffer, 0, sendBuffer.Length);
     }
 
+    private void initTypeTable()
+    {
+        typeTable = new Dictionary<Type, int>() {
+            
+        };
+        invTypeTable = new Dictionary<int, Type>() {
+            {0, typeof(RoomList) }
+        };
+    }
+
     private void AttachToServerAsDelegate()
     {
         //콜백함수 등록
