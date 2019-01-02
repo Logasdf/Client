@@ -5,6 +5,7 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
+using System;
 
 public class ServerConnection : MonoBehaviour {
     
@@ -85,6 +86,7 @@ public class ServerConnection : MonoBehaviour {
         {
             await nStream.ReadAsync(buffer, 0, BUF_SIZE);
             receiveCallback(buffer);
+            Array.Clear(buffer, 0, BUF_SIZE);
         }
     }
 

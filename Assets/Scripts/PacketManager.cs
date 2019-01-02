@@ -9,12 +9,6 @@ using Assets.Scripts;
 
 public class PacketManager : MonoBehaviour {
 
-    enum Method
-    {
-        GET = 0,
-        POST = 1
-    }
-
     public delegate void HandleMessage(object obj, Type type);
 
     public void SetHandleMessage(HandleMessage hm)
@@ -30,15 +24,13 @@ public class PacketManager : MonoBehaviour {
         cos = new CodedOutputStream(sendBuffer);
 
         if(protoObj == null)
-        { // Method: Get
-            cos.WriteBool(false);
+        {
             cos.WriteFixed32((uint)type);
+            cos.WriteFixed32(0);
         }
         else
-        { // Method: Post
-            cos.WriteBool(true);
+        {
             SerializeMessageBody(cos, protoObj);
-
         }
         connection.SendMessage(sendBuffer, (int)cos.Position);
     }
@@ -47,7 +39,7 @@ public class PacketManager : MonoBehaviour {
     {
         Debug.Log("Serialize Message Body!!");
 
-        int type = typeTable[protoObj.GetType()];
+        int type = MessageType.typeTable[protoObj.GetType()];
         int byteLength = protoObj.CalculateSize();
 
         cos.WriteFixed32((uint)type);
@@ -57,8 +49,6 @@ public class PacketManager : MonoBehaviour {
 
     private const int BUF_SIZE = 2048;
     private static PacketManager instance;
-    private Dictionary<Type, int> typeTable;
-    private Dictionary<int, Type> invTypeTable;
     private ServerConnection connection;
     private CodedOutputStream cos;
     private byte[] sendBuffer;
@@ -83,37 +73,14 @@ public class PacketManager : MonoBehaviour {
         instance = this;
         DontDestroyOnLoad(gameObject);
         AttachToServerAsDelegate();
-        initTypeTable(); // TypeTable 및 Inverse TypeTable 초기화
         //********* DICTIONARY INITIALIZE NEEDED *********
 
         sendBuffer = new byte[BUF_SIZE];
     }
 
-    private void initTypeTable()
-    {
-        typeTable = new Dictionary<System.Type, int>() {
-            {typeof(RoomList), 1},
-            {typeof(Room), 2}
-        };
-        invTypeTable = new Dictionary<int, System.Type>() {
-            {1, typeof(RoomList)},
-            {2, typeof(Room)}
-        };
-    }
-
     private void ClearBuffer()
     {
         Array.Clear(sendBuffer, 0, sendBuffer.Length);
-    }
-
-    private void initTypeTable()
-    {
-        typeTable = new Dictionary<Type, int>() {
-            
-        };
-        invTypeTable = new Dictionary<int, Type>() {
-            {0, typeof(RoomList) }
-        };
     }
 
     private void AttachToServerAsDelegate()
@@ -128,25 +95,25 @@ public class PacketManager : MonoBehaviour {
         //메시지가 수신되었을 때 실행되는 콜백함수 
         Debug.Log("UnpackMessage Callback Method");
 
-        int method = buffer[0];
-        int type = BitConverter.ToInt32(buffer, 1);
+        CodedInputStream cis = new CodedInputStream(buffer, 0, 8);
+        //int type = BitConverter.ToInt32(buffer, 0);
+        //int length = BitConverter.ToInt32(buffer, 4);
+        int type = (int)cis.ReadFixed32();
+        int length = (int)cis.ReadFixed32();
         object body = null;
 
-        if (method == (int)Method.GET)
+        if(length == 0)
         {
-            Debug.Log("This is Get Method");
             handleMessage(type, typeof(int));
         }
-        else if(method == (int)Method.POST)
+        else
         {
-            Debug.Log("This is Post Method");
-            int length = BitConverter.ToInt32(buffer, 5);
             try
             {
-                body = DeserializeMessageBody(buffer, 9, length, invTypeTable[type]);
-                handleMessage(body, invTypeTable[type]);
+                body = DeserializeMessageBody(buffer, 8, length, MessageType.invTypeTable[type]);
+                handleMessage(body, MessageType.invTypeTable[type]);
             }
-            catch(KeyNotFoundException knfe)
+            catch (KeyNotFoundException knfe)
             {
                 Debug.Log(knfe.Message);
                 return;

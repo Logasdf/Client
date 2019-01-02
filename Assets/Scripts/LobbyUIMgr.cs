@@ -44,9 +44,22 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public void PopMessage(object obj, Type type)
     {
-        if(type.Name == "RoomList")
+        if(type.Name == "Data")
+        {
+            Data data = (Data)obj;
+            string contentType = data.DataMap["contentType"];
+            if(contentType.CompareTo("ACCEPT_CREATE_ROOM") == 0)
+            {
+                Debug.Log(string.Format("Room ID is {0}", Int32.Parse(data.DataMap["roomId"])));
+            }
+        }
+        else if(type.Name == "RoomList")
         {
             ShowRoomList((RoomList)obj);
+        }
+        else
+        {
+            Debug.Log("Type is not defined...., Check it!");
         }
     }
 
@@ -125,8 +138,14 @@ public class LobbyUIMgr : MonoBehaviour {
 
         Debug.Log("Room name : " + roomName + ", and the selected value is " + selectedVal);
 
-        roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
-        SceneManager.LoadScene("WaitingRoom");
+        Data data = new Data();
+        data.DataMap["contentType"] = "CREATE_ROOM";
+        data.DataMap["roomName"] = roomName;
+        data.DataMap["limits"] = selectedVal;
+        packetManager.PackMessage(protoObj: data);
+
+        //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
+        //SceneManager.LoadScene("WaitingRoom");
     }
 
     private void OnClickRoomItem(string roomName, int currentUserCount, int userCountMax) // 방 입장
