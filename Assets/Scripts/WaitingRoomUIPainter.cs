@@ -16,6 +16,7 @@ public class WaitingRoomUIPainter : ScriptableObject {
         eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
         redList = GameObject.Find("RedTeamList");
         blueList = GameObject.Find("BlueTeamList");
+        ChangeGridCellSize();
         CreateUserPrefabPool();
         DrawUsers();
     }
@@ -49,6 +50,14 @@ public class WaitingRoomUIPainter : ScriptableObject {
     {
         Text userName = eachUserPrefabPool[index].transform.Find("UserName").GetComponent<Text>();
         userName.text = name;
-        eachUserPrefabPool[index].transform.SetParent(parent, false);
+        eachUserPrefabPool[index].transform.SetParent(parent,false);
+    }
+
+    private void ChangeGridCellSize()
+    {
+        Vector2 panelVector = redList.GetComponent<RectTransform>().sizeDelta;
+        Vector2 newCellVector = new Vector2(panelVector.x, panelVector.y / 8);
+        redList.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
+        blueList.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
     }
 }

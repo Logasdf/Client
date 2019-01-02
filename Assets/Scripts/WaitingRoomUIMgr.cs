@@ -1,7 +1,9 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using MapField = Google.Protobuf.Collections.MapField<string, string>;
 
 public class WaitingRoomUIMgr : MonoBehaviour {
 
@@ -19,6 +21,13 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         if (roomContext.IsReady()) // 있어도 그만 없어도 그만
             return;
         //여기서는 서버에 방나간다는 사실을 알려주고, 서버에서는 이 유저가 방장이냐 아니냐에 따라 적절한 처리를 해야한다.
+        Tuple<string, string>[] keyValPairs =
+        {
+           MakeKeyValuePair("content_type", "LEAVE_GAMEROOM"),
+           MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+           MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
+        };
+        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
         SceneManager.LoadScene("GameLobby");
     }
 
@@ -57,15 +66,15 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         if (roomContext.IsReady())
             return;
         //서버에 요청을 보내서 이동이 가능한지 응답을 받는다.
-        Data data = new Data();
-        data.DataMap.Add("content_type", "TEAM_CHANGE");
-        data.DataMap.Add("roomId", roomContext.GetRoomId().ToString());
-        data.DataMap.Add("position", roomContext.GetMyPosition().ToString());
+        Data request = new Data();
+        request.DataMap.Add("content_type", "TEAM_CHANGE");
+        request.DataMap.Add("roomId", roomContext.GetRoomId().ToString());
+        request.DataMap.Add("position", roomContext.GetMyPosition().ToString());
 
         //packetManager.SerializeAndSend(data);
     }
 
-    private void ProcessTeamChangeEventResponse()
+    private void ProcessTeamChangeEventResponse() //test private
     {
         /*
          * TODO :
@@ -77,4 +86,26 @@ public class WaitingRoomUIMgr : MonoBehaviour {
          */
     }
 
+    private void ProcessReadyEventReceived(Data data) //test private
+    {
+        //정상작동함
+        painter.ChangeReadyStateColor(int.Parse(data.DataMap["position"]), bool.Parse(data.DataMap["toReady"]));
+    }
+
+    //이게 좋은건가,,,
+    private Data GetDataInstanceAfterSettingDataMap(params Tuple<string, string>[] keyValuePairs)
+    {
+        Data request = new Data();
+        MapField dataMap = request.DataMap;
+        foreach (var pair in keyValuePairs)
+        {
+            dataMap.Add(pair.Item1, pair.Item2);
+        }
+        return request;
+    }
+
+    private Tuple<string, string> MakeKeyValuePair(string key, string value)
+    {
+        return new Tuple<string, string>(key, value);
+    }
 } 
