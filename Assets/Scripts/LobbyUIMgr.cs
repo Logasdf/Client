@@ -48,14 +48,20 @@ public class LobbyUIMgr : MonoBehaviour {
         {
             Data data = (Data)obj;
             string contentType = data.DataMap["contentType"];
-            if(contentType.CompareTo("ACCEPT_CREATE_ROOM") == 0)
-            {
-                Debug.Log(string.Format("Room ID is {0}", Int32.Parse(data.DataMap["roomId"])));
-            }
+            
         }
         else if(type.Name == "RoomList")
         {
             ShowRoomList((RoomList)obj);
+        }
+        else if(type.Name == "Room")
+        {
+            Debug.Log("Create/Enter Room Success!!");
+            Room room = (Room)obj;
+            roomContext.InitRoomContext(room);
+            SceneManager.LoadScene("WaitingRoom");
+            //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
+            //SceneManager.LoadScene("WaitingRoom");
         }
         else
         {
@@ -89,8 +95,9 @@ public class LobbyUIMgr : MonoBehaviour {
             Destroy(child.gameObject);
         }
 
-        foreach(Room room in roomList.Rooms)
+        foreach(var pair in roomList.Rooms)
         {
+            Room room = pair.Value;
             GameObject roomObj = Instantiate(roomItem);
             var textFields = roomObj.GetComponentsInChildren<Text>();
             textFields[0].text = room.Name;
@@ -143,9 +150,6 @@ public class LobbyUIMgr : MonoBehaviour {
         data.DataMap["roomName"] = roomName;
         data.DataMap["limits"] = selectedVal;
         packetManager.PackMessage(protoObj: data);
-
-        //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
-        //SceneManager.LoadScene("WaitingRoom");
     }
 
     private void OnClickRoomItem(string roomName, int currentUserCount, int userCountMax) // 방 입장
@@ -154,9 +158,15 @@ public class LobbyUIMgr : MonoBehaviour {
          * TODO : Send a message to the server and get the response.
          * With that response, the appropriate code block will be executed.
         */
-        Debug.Log("element clicked : " + roomName);
-        roomContext.EnterRoomAsParticipant(roomName); //test
-        SceneManager.LoadScene("WaitingRoom");
+
+        Data data = new Data();
+        data.DataMap["contentType"] = "ENTER_ROOM";
+        data.DataMap["roomName"] = roomName;
+        packetManager.PackMessage(protoObj: data);
+
+        //Debug.Log("element clicked : " + roomName);
+        //roomContext.EnterRoomAsParticipant(roomName); //test
+        //SceneManager.LoadScene("WaitingRoom");
     }
 
     private void ChangeObjectBgColor(GameObject obj, Color color)

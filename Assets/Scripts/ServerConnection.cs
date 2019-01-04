@@ -84,7 +84,8 @@ public class ServerConnection : MonoBehaviour {
         Debug.Log("Recv Start....");
         while(!isEnd)
         {
-            await nStream.ReadAsync(buffer, 0, BUF_SIZE);
+            int readBytes = await nStream.ReadAsync(buffer, 0, BUF_SIZE);
+            Debug.Log(string.Format("Read Bytes From Server: {0}", readBytes));
             receiveCallback(buffer);
             Array.Clear(buffer, 0, BUF_SIZE);
         }

@@ -11,11 +11,14 @@ public class WaitingRoomUIPainter : ScriptableObject {
     private Color readyColor = Color.yellow;
     private Color notReadyColor = Color.black;
 
+    private RoomContext roomContext;
+
     private void OnEnable()
     {
         eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
         redList = GameObject.Find("RedTeamList");
         blueList = GameObject.Find("BlueTeamList");
+        roomContext = RoomContext.GetInstance();
         ChangeGridCellSize();
         CreateUserPrefabPool();
         DrawUsers();
@@ -39,11 +42,27 @@ public class WaitingRoomUIPainter : ScriptableObject {
     private void DrawUsers()
     {
         //TODO : ROOMCONTEXT 속에 들어있는 정보들을 이용해서(args) 그려내기
-        int redTeamMaxIdx = 8; //test
-        int blueTeamMaxIdx = 8 + 8; // test
+        int redTeamMaxIdx = roomContext.GetRedTeam().Count;
+        int blueTeamMaxIdx = roomContext.GetBlueTeam().Count;
 
-        for (int i = 0; i < redTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), redList.transform);
-        for (int i = 8; i < blueTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), blueList.transform);
+        for(int i = 0; i < redTeamMaxIdx; ++i)
+        {
+            string userName = roomContext.GetRedTeam()[i].Ip + ":" + roomContext.GetRedTeam()[i].Port;
+            AddUserPrefabAsChildToList(roomContext.GetRedTeam()[i].Position, userName, redList.transform);
+        }
+
+        for(int i = 0; i < blueTeamMaxIdx; ++i)
+        {
+            string userName = roomContext.GetBlueTeam()[i].Ip + ":" + roomContext.GetBlueTeam()[i].Port;
+            AddUserPrefabAsChildToList(roomContext.GetBlueTeam()[i].Position, userName, blueList.transform);
+        }
+
+
+        //int redTeamMaxIdx = 8; //test
+        //int blueTeamMaxIdx = 8 + 8; // test
+
+        //for (int i = 0; i < redTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), redList.transform);
+        //for (int i = 8; i < blueTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), blueList.transform);
     }
 
     private void AddUserPrefabAsChildToList(int index, string name, Transform parent)

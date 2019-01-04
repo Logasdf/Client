@@ -12,9 +12,9 @@ namespace Assets.Scripts
     {
         public static readonly int ACCEPT = 0;
         public static readonly int REJECT = 1;
-        public static readonly int REFRESH = 3;
-        public static readonly int CREATE = 4;
-        public static readonly int ENTER = 5;
+        public static readonly int REFRESH = 2;
+        public static readonly int CREATE = 3;
+        public static readonly int ENTER = 4;
 
         public static readonly int DATA = 100;
         public static readonly int ROOMLIST = 101;
