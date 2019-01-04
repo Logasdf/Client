@@ -3,6 +3,8 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
+using DrawType = WaitingRoomUIPainter.DrawType;
 using MapField = Google.Protobuf.Collections.MapField<string, string>;
 
 public class WaitingRoomUIMgr : MonoBehaviour {
@@ -10,17 +12,34 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     private RoomContext roomContext;
     private PacketManager packetManager;
     private WaitingRoomUIPainter painter;
+    private const int MAXEACH = 8;
 
-    public void ProcessReadyButtonEvent()
+    public void OnStartButtonClicked()
     {
-        ProcessReadyButtonClickEvent();  
+        Debug.Log("시작");
     }
 
-    public void ProcessLeaveButtonEvent()
+    public void OnReadyButtonClicked()
     {
-        if (roomContext.IsReady()) // 있어도 그만 없어도 그만
+        Tuple<string, string>[] keyValPairs =
+        {
+            MakeKeyValuePair("content_type", "READY_EVENT"),
+            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+            MakeKeyValuePair("position", roomContext.GetMyPosition().ToString()),
+            MakeKeyValuePair("toReady", !roomContext.IsReady() ? "true" : "false")
+        };
+        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+
+        //packetManager.SerializeAndSend(request);
+        painter.ChangeReadyStateColor(GetCalculatedIndex(roomContext.GetMyPosition()), !roomContext.IsReady());
+        roomContext.ReverseReadyState();
+    }
+
+    public void OnLeaveButtonClicked()
+    {
+        if (roomContext.IsReady())
             return;
-        //여기서는 서버에 방나간다는 사실을 알려주고, 서버에서는 이 유저가 방장이냐 아니냐에 따라 적절한 처리를 해야한다.
+       
         Tuple<string, string>[] keyValPairs =
         {
            MakeKeyValuePair("content_type", "LEAVE_GAMEROOM"),
@@ -28,12 +47,45 @@ public class WaitingRoomUIMgr : MonoBehaviour {
            MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
         };
         Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        //packetManager.SerializeAndSend(request);
         SceneManager.LoadScene("GameLobby");
     }
 
-    public void RequestProcessForTeamChange()
+    public void OnTeamChangeButtonClicked()
     {
-        ProcessTeamChangeEventRequest();
+        if (roomContext.IsReady())
+            return;
+
+        Tuple<string, string>[] keyValPairs =
+        {
+            MakeKeyValuePair("content_type", "TEAM_CHANGE"),
+            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+            MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
+        };
+
+        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        //packetManager.SerializeAndSend(data);
+    }
+
+    public void OnChatEndEdit(InputField chatField)
+    {
+        if (Input.GetKeyDown(KeyCode.Return))
+        {
+            string message = chatField.text;
+            if (message.Length != 0)
+            {
+                Tuple<string, string>[] keyValPairs =
+                {
+                    MakeKeyValuePair("content_type", "CHAT_MESSAGE"),
+                    MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+                    MakeKeyValuePair("message", message)
+                };
+                Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+                //packetManager.PackMessage(타입, data);
+            }
+            chatField.text = "";
+            chatField.ActivateInputField();            
+        }   
     }
 
     private void Start()
@@ -41,55 +93,47 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         roomContext = RoomContext.GetInstance();
         packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
         painter = (WaitingRoomUIPainter)ScriptableObject.CreateInstance("WaitingRoomUIPainter");
+        painter.Init(roomContext.GetMaxUserCount(), roomContext.IsHost());
+        painter.Draw(roomContext, DrawType.BOTH);
     }
 
-    private void ProcessReadyButtonClickEvent()
+    private void ProcessTeamChangeEventReceived(MapField response) //test private
     {
-        //버튼 클릭
-        //TODO : **서버에 준비완료 메시지 전송**
-        Data request = new Data();
-        request.DataMap.Add("content_type", "READY_EVENT");
-        request.DataMap.Add("roomId", roomContext.GetRoomId().ToString());
-        request.DataMap.Add("position", roomContext.GetMyPosition().ToString());
-        request.DataMap.Add("ready", roomContext.IsReady() ? "true" : "false");
+        //서버에서 오는 정보는 과거 위치와 이동할 위치라고 가정하자.
+        int prevPos = int.Parse(response["prev_position"]);
+        int nextPos = int.Parse(response["next_position"]);
 
-        //packetManager.SerializeAndSend(request);
-
-        painter.ChangeReadyStateColor(roomContext.GetMyPosition(), !roomContext.IsReady());
-        roomContext.ReverseReadyState();
+        roomContext.ChangeTeam(prevPos, nextPos);
+        painter.Draw(roomContext, DrawType.BOTH);
     }
 
-    private void ProcessTeamChangeEventRequest()
+    private void ProcessReadyEventReceived(MapField response) //test private
     {
-
-        //준비완료상태라면 해당 요청을 거부한다.
-        if (roomContext.IsReady())
-            return;
-        //서버에 요청을 보내서 이동이 가능한지 응답을 받는다.
-        Data request = new Data();
-        request.DataMap.Add("content_type", "TEAM_CHANGE");
-        request.DataMap.Add("roomId", roomContext.GetRoomId().ToString());
-        request.DataMap.Add("position", roomContext.GetMyPosition().ToString());
-
-        //packetManager.SerializeAndSend(data);
+        painter.ChangeReadyStateColor(GetCalculatedIndex(int.Parse(response["position"])), bool.Parse(response["toReady"]));
     }
 
-    private void ProcessTeamChangeEventResponse() //test private
+    private void ProcessLeaveEventReceived(MapField response)
     {
-        /*
-         * TODO :
-         * 5. 현재 나의 팀의 유저정보 배열에서 나를 제외하고 배열을 정리한다.
-         * 6. 현재 나의 팀의 idx를 감소시킨다.
-         * 7. 이동할 팀의 유저정보 배열의 idx인덱스에 나의 정보를 삽입한다.
-         * 8. 이동한 팀의 idx를 1 증가시킨다.
-         * myPosition을 변경하고, 다시 그려낸다.
-         */
+        int position = int.Parse(response["position"]);
+        roomContext.DeleteUserFromTeam(position);
+
+        if (position < MAXEACH)
+            painter.Draw(roomContext, DrawType.REDONLY);
+        else
+            painter.Draw(roomContext, DrawType.BLUEONLY);
     }
 
-    private void ProcessReadyEventReceived(Data data) //test private
+    private void ProcessChatMessageReceived(string response)
     {
-        //정상작동함
-        painter.ChangeReadyStateColor(int.Parse(data.DataMap["position"]), bool.Parse(data.DataMap["toReady"]));
+        painter.AddMessageToChatWindow(response);
+    }
+
+    private int GetCalculatedIndex(int val)
+    {
+        int ret = val;
+        if (ret >= MAXEACH)
+            ret = (ret % MAXEACH) + (roomContext.GetMaxUserCount() / 2);
+        return ret;
     }
 
     //이게 좋은건가,,,

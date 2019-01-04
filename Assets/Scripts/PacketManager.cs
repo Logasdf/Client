@@ -5,40 +5,57 @@ using System.Reflection;
 using UnityEngine;
 using Google.Protobuf;
 using Google.Protobuf.Packet.Room;
+using Assets.Scripts;
 
 public class PacketManager : MonoBehaviour {
 
     public delegate void HandleMessage(object obj, Type type);
+
+
+    private const int BUF_SIZE = 2048;
+    private static PacketManager instance;
+    private ServerConnection connection;
+    private CodedOutputStream cos;
+    private byte[] sendBuffer;
+    // UI Manager Component(들)에게 Data를 넘기기위한 Delegate
+    private HandleMessage handleMessage;
+
 
     public void SetHandleMessage(HandleMessage hm)
     {
         this.handleMessage = hm;
     }
 
-    public void SerializeAndSend(IMessage protoObj)
+    public void PackMessage(int type = -1, IMessage protoObj = null)
     {
-        int type = typeTable[protoObj.GetType()];
-        int byteLength = protoObj.CalculateSize();
+        Debug.Log("PackMessage Callback Method");
 
-        Debug.Log(type);
-        Debug.Log(byteLength);
-        cos.WriteInt32(type);
-        cos.WriteInt32(byteLength);
-        protoObj.WriteTo(cos);
+        ClearBuffer();
+        cos = new CodedOutputStream(sendBuffer);
 
-        connection.SendMessage(sendBuffer, sendBuffer.Length);
+        if(protoObj == null)
+        {
+            cos.WriteFixed32((uint)type);
+            cos.WriteFixed32(0);
+        }
+        else
+        {
+            SerializeMessageBody(cos, protoObj);
+        }
+        connection.SendMessage(sendBuffer, (int)cos.Position);
     }
 
-    private const int BUF_SIZE = 2048;
-    private static PacketManager instance;
-    private Dictionary<Type, int> typeTable;
-    private Dictionary<int, Type> invTypeTable;
-    private ServerConnection connection;
-    private CodedOutputStream cos;
-    private byte[] sendBuffer;
+    private void SerializeMessageBody(CodedOutputStream cos, IMessage protoObj)
+    {
+        Debug.Log("Serialize Message Body!!");
 
-    // UI Manager Component(들)에게 Data를 넘기기위한 Delegate
-    private HandleMessage handleMessage;
+        int type = MessageType.typeTable[protoObj.GetType()];
+        int byteLength = protoObj.CalculateSize();
+
+        cos.WriteFixed32((uint)type);
+        cos.WriteFixed32((uint)byteLength);
+        protoObj.WriteTo(cos);
+    }
 
     private void Awake()
     {
@@ -57,21 +74,14 @@ public class PacketManager : MonoBehaviour {
         instance = this;
         DontDestroyOnLoad(gameObject);
         AttachToServerAsDelegate();
-        initTypeTable(); // TypeTable 및 Inverse TypeTable 초기화
         //********* DICTIONARY INITIALIZE NEEDED *********
-        
+
         sendBuffer = new byte[BUF_SIZE];
-        cos = new CodedOutputStream(sendBuffer);
     }
 
-    private void initTypeTable()
+    private void ClearBuffer()
     {
-        typeTable = new Dictionary<Type, int>() {
-            
-        };
-        invTypeTable = new Dictionary<int, Type>() {
-            {0, typeof(RoomList) }
-        };
+        Array.Clear(sendBuffer, 0, sendBuffer.Length);
     }
 
     private void AttachToServerAsDelegate()
@@ -85,29 +95,36 @@ public class PacketManager : MonoBehaviour {
     {   
         //메시지가 수신되었을 때 실행되는 콜백함수 
         Debug.Log("UnpackMessage Callback Method");
-        /*
-         *  현재 Message Format(테스트용)은 다음과 같다.
-         *  [type:4byte][length:4byte][message_body:실제 메시지 길이만큼]
-         */
-        int type = BitConverter.ToInt32(buffer, 0);
-        int length = BitConverter.ToInt32(buffer, 4);
-        //Debug.Log(string.Format("{0}, {1}", type, length));
-        try
+
+        CodedInputStream cis = new CodedInputStream(buffer, 0, 8);
+        //int type = BitConverter.ToInt32(buffer, 0);
+        //int length = BitConverter.ToInt32(buffer, 4);
+        int type = (int)cis.ReadFixed32();
+        int length = (int)cis.ReadFixed32();
+        object body = null;
+
+        if(length == 0)
         {
-            // Inverse Type Table에서 type에 대응되는 Type값 찾아오기
-            // 만약 type key가 없을 경우, Exception 발생
-            Type t = invTypeTable[type];
-            Deserialize(buffer, 8, length, t);
+            handleMessage(type, typeof(int));
         }
-        catch(KeyNotFoundException knfe)
+        else
         {
-            Debug.Log(knfe.Message);
+            try
+            {
+                body = DeserializeMessageBody(buffer, 8, length, MessageType.invTypeTable[type]);
+                handleMessage(body, MessageType.invTypeTable[type]);
+            }
+            catch (KeyNotFoundException knfe)
+            {
+                Debug.Log(knfe.Message);
+                return;
+            }
         }
     }
 
-    private void Deserialize(byte[] buffer, int start, int length, Type type)
+    private object DeserializeMessageBody(byte[] buffer, int start, int length, Type type)
     {
-        Debug.Log("Deserialize Start!");
+        Debug.Log("Deserialize Message Body Start!");
         // Type 객체에 맞게 Instance 생성해주는 함수.
         // 예를 들어 Type 객체가 RoomList의 Type일 경우, RoomList객체가 생성되는 것.
         // 아래 코드에서는 object로 반환받은 이유는 동적으로 Type casting할 방법이 없어서임.
@@ -122,12 +139,12 @@ public class PacketManager : MonoBehaviour {
             // 찾은 메소드를 실제 실행시키는 코드, 2nd param은 메소드의 인자로 활용된다.
             // 현재 찾은 메소드가 CodedInputStream을 파라미터로 하는 MergeFrom 메소드이므로 2nd param으로 cis을 넘김.
             parseMethod.Invoke(obj, new object[] { cis });
-            // Deserialize가 문제없이 완료될 경우, UI Manager에게 전송
-            handleMessage(obj, type);
+            return obj;
         }
         catch (Exception e)
         {
             Debug.Log(e.Message);
+            return null;
         }
     }
 }
