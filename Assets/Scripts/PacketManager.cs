@@ -29,7 +29,6 @@ public class PacketManager : MonoBehaviour {
     public void PackMessage(int type = -1, IMessage protoObj = null)
     {
         Debug.Log("PackMessage Callback Method");
-
         ClearBuffer();
         cos = new CodedOutputStream(sendBuffer);
 
@@ -56,7 +55,7 @@ public class PacketManager : MonoBehaviour {
         cos.WriteFixed32((uint)byteLength);
         protoObj.WriteTo(cos);
     }
-
+  
     private void Awake()
     {
         //Debug.Log(this.ToString() + " Awake()");

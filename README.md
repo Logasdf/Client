@@ -40,11 +40,14 @@ We are doing this with Unity 3D and C#.
 - A room can accommodate up to 16 people.
 - "Game Start" button should be displayed only on the host's screen.
     - For others, display "Ready" button.
-- Create a team-switch button, and define a function for it.
 - **Push ready button.(After Entering the room)**
     - **Client 준비표시 on/off -> 준비완료메시지(Room ID/Team info) 송신**
     - Server는 Room ID에 해당하는 Room객체 상태 업데이트(준비인원++) -> Broadcast
     - **Client UI 업데이트**
+- Team Switch
+    - **Server에 Team Switch request를 전송**
+    - Server에서 가능/불가능 여부를 판단해서 response 전송
+    - **클라이언트에서는 응답에 따라 처리.**
 - Leave the room.
     - Client와 Server는 준비이벤트와 유사
     - 나간 사람이 방장일 경우.

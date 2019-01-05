@@ -74,12 +74,15 @@ public class WaitingRoomUIPainter : ScriptableObject {
         chatContents.text += msg + "\n";
     }
 
+    private RoomContext roomContext;
+
     private void OnEnable()
     {
         eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
         redList = GameObject.Find("RedTeamList");
         blueList = GameObject.Find("BlueTeamList");
         chatContents = GameObject.Find("ChatMessage").GetComponent<Text>();
+        //roomContext = RoomContext.GetInstance();
         ChangeGridCellSize();
     }
 
@@ -105,6 +108,22 @@ public class WaitingRoomUIPainter : ScriptableObject {
             usernameTextArray[i].text = rContext.GetRedTeamUserName(i);
         for (; i < maxCount; i++)
             usernameTextArray[i].text = "";
+        /*
+        int redTeamMaxIdx = roomContext.GetRedTeam().Count;
+        int blueTeamMaxIdx = roomContext.GetBlueTeam().Count;
+
+        for(int i = 0; i < redTeamMaxIdx; ++i)
+        {
+            string userName = roomContext.GetRedTeam()[i].Ip + ":" + roomContext.GetRedTeam()[i].Port;
+            AddUserPrefabAsChildToList(roomContext.GetRedTeam()[i].Position, userName, redList.transform);
+        }
+
+        for(int i = 0; i < blueTeamMaxIdx; ++i)
+        {
+            string userName = roomContext.GetBlueTeam()[i].Ip + ":" + roomContext.GetBlueTeam()[i].Port;
+            AddUserPrefabAsChildToList(roomContext.GetBlueTeam()[i].Position, userName, blueList.transform);
+        }
+        */
     }
 
     private void DrawBlueTeam(RoomContext rContext)

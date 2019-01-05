@@ -24,19 +24,23 @@ namespace Google.Protobuf.Packet.Room {
     static RoomReflection() {
       byte[] descriptorData = global::System.Convert.FromBase64String(
           string.Concat(
-            "Cgpyb29tLnByb3RvEgZwYWNrZXQaH2dvb2dsZS9wcm90b2J1Zi90aW1lc3Rh",
-            "bXAucHJvdG8iIgoGQ2xpZW50EgoKAmlwGAEgASgJEgwKBHBvcnQYAiABKAUi",
-            "hwEKBFJvb20SDAoEbmFtZRgBIAEoCRINCgVsaW1pdBgCIAEoBRIPCgdjdXJy",
-            "ZW50GAMgASgFEh8KB2NsaWVudHMYBCADKAsyDi5wYWNrZXQuQ2xpZW50EjAK",
-            "DGxhc3RfdXBkYXRlZBgFIAEoCzIaLmdvb2dsZS5wcm90b2J1Zi5UaW1lc3Rh",
-            "bXAiJwoIUm9vbUxpc3QSGwoFcm9vbXMYASADKAsyDC5wYWNrZXQuUm9vbUIe",
-            "qgIbR29vZ2xlLlByb3RvYnVmLlBhY2tldC5Sb29tYgZwcm90bzM="));
+            "Cgpyb29tLnByb3RvEgZwYWNrZXQiUwoGQ2xpZW50Eg4KBmNsbnRJZBgBIAEo",
+            "BRIKCgJpcBgCIAEoCRIMCgRwb3J0GAMgASgFEhAKCHBvc2l0aW9uGAQgASgF",
+            "Eg0KBXJlYWR5GAUgASgIIr0BCgRSb29tEg4KBnJvb21JZBgBIAEoBRIMCgRu",
+            "YW1lGAIgASgJEg0KBWxpbWl0GAMgASgFEg8KB2N1cnJlbnQYBCABKAUSHwoH",
+            "cmVkVGVhbRgFIAMoCzIOLnBhY2tldC5DbGllbnQSIAoIYmx1ZVRlYW0YBiAD",
+            "KAsyDi5wYWNrZXQuQ2xpZW50EhIKCnJlYWR5Q291bnQYByABKAUSDAoEaG9z",
+            "dBgIIAEoBRISCgpteVBvc2l0aW9uGAkgASgFInIKCFJvb21MaXN0EioKBXJv",
+            "b21zGAEgAygLMhsucGFja2V0LlJvb21MaXN0LlJvb21zRW50cnkaOgoKUm9v",
+            "bXNFbnRyeRILCgNrZXkYASABKAUSGwoFdmFsdWUYAiABKAsyDC5wYWNrZXQu",
+            "Um9vbToCOAFCHqoCG0dvb2dsZS5Qcm90b2J1Zi5QYWNrZXQuUm9vbWIGcHJv",
+            "dG8z"));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
-          new pbr::FileDescriptor[] { global::Google.Protobuf.WellKnownTypes.TimestampReflection.Descriptor, },
+          new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Packet.Room.Client), global::Google.Protobuf.Packet.Room.Client.Parser, new[]{ "Ip", "Port" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Packet.Room.Room), global::Google.Protobuf.Packet.Room.Room.Parser, new[]{ "Name", "Limit", "Current", "Clients", "LastUpdated" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Packet.Room.RoomList), global::Google.Protobuf.Packet.Room.RoomList.Parser, new[]{ "Rooms" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Packet.Room.Client), global::Google.Protobuf.Packet.Room.Client.Parser, new[]{ "ClntId", "Ip", "Port", "Position", "Ready" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Packet.Room.Room), global::Google.Protobuf.Packet.Room.Room.Parser, new[]{ "RoomId", "Name", "Limit", "Current", "RedTeam", "BlueTeam", "ReadyCount", "Host", "MyPosition" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.Packet.Room.RoomList), global::Google.Protobuf.Packet.Room.RoomList.Parser, new[]{ "Rooms" }, null, null, new pbr::GeneratedClrTypeInfo[] { null, })
           }));
     }
     #endregion
@@ -68,8 +72,11 @@ namespace Google.Protobuf.Packet.Room {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Client(Client other) : this() {
+      clntId_ = other.clntId_;
       ip_ = other.ip_;
       port_ = other.port_;
+      position_ = other.position_;
+      ready_ = other.ready_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -78,8 +85,19 @@ namespace Google.Protobuf.Packet.Room {
       return new Client(this);
     }
 
+    /// <summary>Field number for the "clntId" field.</summary>
+    public const int ClntIdFieldNumber = 1;
+    private int clntId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int ClntId {
+      get { return clntId_; }
+      set {
+        clntId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "ip" field.</summary>
-    public const int IpFieldNumber = 1;
+    public const int IpFieldNumber = 2;
     private string ip_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Ip {
@@ -90,13 +108,35 @@ namespace Google.Protobuf.Packet.Room {
     }
 
     /// <summary>Field number for the "port" field.</summary>
-    public const int PortFieldNumber = 2;
+    public const int PortFieldNumber = 3;
     private int port_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Port {
       get { return port_; }
       set {
         port_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "position" field.</summary>
+    public const int PositionFieldNumber = 4;
+    private int position_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Position {
+      get { return position_; }
+      set {
+        position_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "ready" field.</summary>
+    public const int ReadyFieldNumber = 5;
+    private bool ready_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Ready {
+      get { return ready_; }
+      set {
+        ready_ = value;
       }
     }
 
@@ -113,16 +153,22 @@ namespace Google.Protobuf.Packet.Room {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (ClntId != other.ClntId) return false;
       if (Ip != other.Ip) return false;
       if (Port != other.Port) return false;
+      if (Position != other.Position) return false;
+      if (Ready != other.Ready) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
+      if (ClntId != 0) hash ^= ClntId.GetHashCode();
       if (Ip.Length != 0) hash ^= Ip.GetHashCode();
       if (Port != 0) hash ^= Port.GetHashCode();
+      if (Position != 0) hash ^= Position.GetHashCode();
+      if (Ready != false) hash ^= Ready.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -136,13 +182,25 @@ namespace Google.Protobuf.Packet.Room {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
+      if (ClntId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(ClntId);
+      }
       if (Ip.Length != 0) {
-        output.WriteRawTag(10);
+        output.WriteRawTag(18);
         output.WriteString(Ip);
       }
       if (Port != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(24);
         output.WriteInt32(Port);
+      }
+      if (Position != 0) {
+        output.WriteRawTag(32);
+        output.WriteInt32(Position);
+      }
+      if (Ready != false) {
+        output.WriteRawTag(40);
+        output.WriteBool(Ready);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -152,11 +210,20 @@ namespace Google.Protobuf.Packet.Room {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
+      if (ClntId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ClntId);
+      }
       if (Ip.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Ip);
       }
       if (Port != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Port);
+      }
+      if (Position != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Position);
+      }
+      if (Ready != false) {
+        size += 1 + 1;
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -169,11 +236,20 @@ namespace Google.Protobuf.Packet.Room {
       if (other == null) {
         return;
       }
+      if (other.ClntId != 0) {
+        ClntId = other.ClntId;
+      }
       if (other.Ip.Length != 0) {
         Ip = other.Ip;
       }
       if (other.Port != 0) {
         Port = other.Port;
+      }
+      if (other.Position != 0) {
+        Position = other.Position;
+      }
+      if (other.Ready != false) {
+        Ready = other.Ready;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -186,12 +262,24 @@ namespace Google.Protobuf.Packet.Room {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case 8: {
+            ClntId = input.ReadInt32();
+            break;
+          }
+          case 18: {
             Ip = input.ReadString();
             break;
           }
-          case 16: {
+          case 24: {
             Port = input.ReadInt32();
+            break;
+          }
+          case 32: {
+            Position = input.ReadInt32();
+            break;
+          }
+          case 40: {
+            Ready = input.ReadBool();
             break;
           }
         }
@@ -225,11 +313,15 @@ namespace Google.Protobuf.Packet.Room {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public Room(Room other) : this() {
+      roomId_ = other.roomId_;
       name_ = other.name_;
       limit_ = other.limit_;
       current_ = other.current_;
-      clients_ = other.clients_.Clone();
-      lastUpdated_ = other.lastUpdated_ != null ? other.lastUpdated_.Clone() : null;
+      redTeam_ = other.redTeam_.Clone();
+      blueTeam_ = other.blueTeam_.Clone();
+      readyCount_ = other.readyCount_;
+      host_ = other.host_;
+      myPosition_ = other.myPosition_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -238,8 +330,19 @@ namespace Google.Protobuf.Packet.Room {
       return new Room(this);
     }
 
+    /// <summary>Field number for the "roomId" field.</summary>
+    public const int RoomIdFieldNumber = 1;
+    private int roomId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int RoomId {
+      get { return roomId_; }
+      set {
+        roomId_ = value;
+      }
+    }
+
     /// <summary>Field number for the "name" field.</summary>
-    public const int NameFieldNumber = 1;
+    public const int NameFieldNumber = 2;
     private string name_ = "";
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public string Name {
@@ -250,7 +353,7 @@ namespace Google.Protobuf.Packet.Room {
     }
 
     /// <summary>Field number for the "limit" field.</summary>
-    public const int LimitFieldNumber = 2;
+    public const int LimitFieldNumber = 3;
     private int limit_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Limit {
@@ -261,7 +364,7 @@ namespace Google.Protobuf.Packet.Room {
     }
 
     /// <summary>Field number for the "current" field.</summary>
-    public const int CurrentFieldNumber = 3;
+    public const int CurrentFieldNumber = 4;
     private int current_;
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int Current {
@@ -271,24 +374,56 @@ namespace Google.Protobuf.Packet.Room {
       }
     }
 
-    /// <summary>Field number for the "clients" field.</summary>
-    public const int ClientsFieldNumber = 4;
-    private static readonly pb::FieldCodec<global::Google.Protobuf.Packet.Room.Client> _repeated_clients_codec
-        = pb::FieldCodec.ForMessage(34, global::Google.Protobuf.Packet.Room.Client.Parser);
-    private readonly pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client> clients_ = new pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client>();
+    /// <summary>Field number for the "redTeam" field.</summary>
+    public const int RedTeamFieldNumber = 5;
+    private static readonly pb::FieldCodec<global::Google.Protobuf.Packet.Room.Client> _repeated_redTeam_codec
+        = pb::FieldCodec.ForMessage(42, global::Google.Protobuf.Packet.Room.Client.Parser);
+    private readonly pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client> redTeam_ = new pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client> Clients {
-      get { return clients_; }
+    public pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client> RedTeam {
+      get { return redTeam_; }
     }
 
-    /// <summary>Field number for the "last_updated" field.</summary>
-    public const int LastUpdatedFieldNumber = 5;
-    private global::Google.Protobuf.WellKnownTypes.Timestamp lastUpdated_;
+    /// <summary>Field number for the "blueTeam" field.</summary>
+    public const int BlueTeamFieldNumber = 6;
+    private static readonly pb::FieldCodec<global::Google.Protobuf.Packet.Room.Client> _repeated_blueTeam_codec
+        = pb::FieldCodec.ForMessage(50, global::Google.Protobuf.Packet.Room.Client.Parser);
+    private readonly pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client> blueTeam_ = new pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public global::Google.Protobuf.WellKnownTypes.Timestamp LastUpdated {
-      get { return lastUpdated_; }
+    public pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Client> BlueTeam {
+      get { return blueTeam_; }
+    }
+
+    /// <summary>Field number for the "readyCount" field.</summary>
+    public const int ReadyCountFieldNumber = 7;
+    private int readyCount_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int ReadyCount {
+      get { return readyCount_; }
       set {
-        lastUpdated_ = value;
+        readyCount_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "host" field.</summary>
+    public const int HostFieldNumber = 8;
+    private int host_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Host {
+      get { return host_; }
+      set {
+        host_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "myPosition" field.</summary>
+    public const int MyPositionFieldNumber = 9;
+    private int myPosition_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int MyPosition {
+      get { return myPosition_; }
+      set {
+        myPosition_ = value;
       }
     }
 
@@ -305,22 +440,30 @@ namespace Google.Protobuf.Packet.Room {
       if (ReferenceEquals(other, this)) {
         return true;
       }
+      if (RoomId != other.RoomId) return false;
       if (Name != other.Name) return false;
       if (Limit != other.Limit) return false;
       if (Current != other.Current) return false;
-      if(!clients_.Equals(other.clients_)) return false;
-      if (!object.Equals(LastUpdated, other.LastUpdated)) return false;
+      if(!redTeam_.Equals(other.redTeam_)) return false;
+      if(!blueTeam_.Equals(other.blueTeam_)) return false;
+      if (ReadyCount != other.ReadyCount) return false;
+      if (Host != other.Host) return false;
+      if (MyPosition != other.MyPosition) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
+      if (RoomId != 0) hash ^= RoomId.GetHashCode();
       if (Name.Length != 0) hash ^= Name.GetHashCode();
       if (Limit != 0) hash ^= Limit.GetHashCode();
       if (Current != 0) hash ^= Current.GetHashCode();
-      hash ^= clients_.GetHashCode();
-      if (lastUpdated_ != null) hash ^= LastUpdated.GetHashCode();
+      hash ^= redTeam_.GetHashCode();
+      hash ^= blueTeam_.GetHashCode();
+      if (ReadyCount != 0) hash ^= ReadyCount.GetHashCode();
+      if (Host != 0) hash ^= Host.GetHashCode();
+      if (MyPosition != 0) hash ^= MyPosition.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -334,22 +477,35 @@ namespace Google.Protobuf.Packet.Room {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
+      if (RoomId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(RoomId);
+      }
       if (Name.Length != 0) {
-        output.WriteRawTag(10);
+        output.WriteRawTag(18);
         output.WriteString(Name);
       }
       if (Limit != 0) {
-        output.WriteRawTag(16);
+        output.WriteRawTag(24);
         output.WriteInt32(Limit);
       }
       if (Current != 0) {
-        output.WriteRawTag(24);
+        output.WriteRawTag(32);
         output.WriteInt32(Current);
       }
-      clients_.WriteTo(output, _repeated_clients_codec);
-      if (lastUpdated_ != null) {
-        output.WriteRawTag(42);
-        output.WriteMessage(LastUpdated);
+      redTeam_.WriteTo(output, _repeated_redTeam_codec);
+      blueTeam_.WriteTo(output, _repeated_blueTeam_codec);
+      if (ReadyCount != 0) {
+        output.WriteRawTag(56);
+        output.WriteInt32(ReadyCount);
+      }
+      if (Host != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(Host);
+      }
+      if (MyPosition != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(MyPosition);
       }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
@@ -359,6 +515,9 @@ namespace Google.Protobuf.Packet.Room {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
+      if (RoomId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RoomId);
+      }
       if (Name.Length != 0) {
         size += 1 + pb::CodedOutputStream.ComputeStringSize(Name);
       }
@@ -368,9 +527,16 @@ namespace Google.Protobuf.Packet.Room {
       if (Current != 0) {
         size += 1 + pb::CodedOutputStream.ComputeInt32Size(Current);
       }
-      size += clients_.CalculateSize(_repeated_clients_codec);
-      if (lastUpdated_ != null) {
-        size += 1 + pb::CodedOutputStream.ComputeMessageSize(LastUpdated);
+      size += redTeam_.CalculateSize(_repeated_redTeam_codec);
+      size += blueTeam_.CalculateSize(_repeated_blueTeam_codec);
+      if (ReadyCount != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(ReadyCount);
+      }
+      if (Host != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Host);
+      }
+      if (MyPosition != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(MyPosition);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -383,6 +549,9 @@ namespace Google.Protobuf.Packet.Room {
       if (other == null) {
         return;
       }
+      if (other.RoomId != 0) {
+        RoomId = other.RoomId;
+      }
       if (other.Name.Length != 0) {
         Name = other.Name;
       }
@@ -392,12 +561,16 @@ namespace Google.Protobuf.Packet.Room {
       if (other.Current != 0) {
         Current = other.Current;
       }
-      clients_.Add(other.clients_);
-      if (other.lastUpdated_ != null) {
-        if (lastUpdated_ == null) {
-          lastUpdated_ = new global::Google.Protobuf.WellKnownTypes.Timestamp();
-        }
-        LastUpdated.MergeFrom(other.LastUpdated);
+      redTeam_.Add(other.redTeam_);
+      blueTeam_.Add(other.blueTeam_);
+      if (other.ReadyCount != 0) {
+        ReadyCount = other.ReadyCount;
+      }
+      if (other.Host != 0) {
+        Host = other.Host;
+      }
+      if (other.MyPosition != 0) {
+        MyPosition = other.MyPosition;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -410,27 +583,40 @@ namespace Google.Protobuf.Packet.Room {
           default:
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
-          case 10: {
+          case 8: {
+            RoomId = input.ReadInt32();
+            break;
+          }
+          case 18: {
             Name = input.ReadString();
             break;
           }
-          case 16: {
+          case 24: {
             Limit = input.ReadInt32();
             break;
           }
-          case 24: {
+          case 32: {
             Current = input.ReadInt32();
             break;
           }
-          case 34: {
-            clients_.AddEntriesFrom(input, _repeated_clients_codec);
+          case 42: {
+            redTeam_.AddEntriesFrom(input, _repeated_redTeam_codec);
             break;
           }
-          case 42: {
-            if (lastUpdated_ == null) {
-              lastUpdated_ = new global::Google.Protobuf.WellKnownTypes.Timestamp();
-            }
-            input.ReadMessage(lastUpdated_);
+          case 50: {
+            blueTeam_.AddEntriesFrom(input, _repeated_blueTeam_codec);
+            break;
+          }
+          case 56: {
+            ReadyCount = input.ReadInt32();
+            break;
+          }
+          case 64: {
+            Host = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            MyPosition = input.ReadInt32();
             break;
           }
         }
@@ -475,11 +661,11 @@ namespace Google.Protobuf.Packet.Room {
 
     /// <summary>Field number for the "rooms" field.</summary>
     public const int RoomsFieldNumber = 1;
-    private static readonly pb::FieldCodec<global::Google.Protobuf.Packet.Room.Room> _repeated_rooms_codec
-        = pb::FieldCodec.ForMessage(10, global::Google.Protobuf.Packet.Room.Room.Parser);
-    private readonly pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Room> rooms_ = new pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Room>();
+    private static readonly pbc::MapField<int, global::Google.Protobuf.Packet.Room.Room>.Codec _map_rooms_codec
+        = new pbc::MapField<int, global::Google.Protobuf.Packet.Room.Room>.Codec(pb::FieldCodec.ForInt32(8), pb::FieldCodec.ForMessage(18, global::Google.Protobuf.Packet.Room.Room.Parser), 10);
+    private readonly pbc::MapField<int, global::Google.Protobuf.Packet.Room.Room> rooms_ = new pbc::MapField<int, global::Google.Protobuf.Packet.Room.Room>();
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
-    public pbc::RepeatedField<global::Google.Protobuf.Packet.Room.Room> Rooms {
+    public pbc::MapField<int, global::Google.Protobuf.Packet.Room.Room> Rooms {
       get { return rooms_; }
     }
 
@@ -496,14 +682,14 @@ namespace Google.Protobuf.Packet.Room {
       if (ReferenceEquals(other, this)) {
         return true;
       }
-      if(!rooms_.Equals(other.rooms_)) return false;
+      if (!Rooms.Equals(other.Rooms)) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override int GetHashCode() {
       int hash = 1;
-      hash ^= rooms_.GetHashCode();
+      hash ^= Rooms.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -517,7 +703,7 @@ namespace Google.Protobuf.Packet.Room {
 
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public void WriteTo(pb::CodedOutputStream output) {
-      rooms_.WriteTo(output, _repeated_rooms_codec);
+      rooms_.WriteTo(output, _map_rooms_codec);
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -526,7 +712,7 @@ namespace Google.Protobuf.Packet.Room {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public int CalculateSize() {
       int size = 0;
-      size += rooms_.CalculateSize(_repeated_rooms_codec);
+      size += rooms_.CalculateSize(_map_rooms_codec);
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
       }
@@ -551,7 +737,7 @@ namespace Google.Protobuf.Packet.Room {
             _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
             break;
           case 10: {
-            rooms_.AddEntriesFrom(input, _repeated_rooms_codec);
+            rooms_.AddEntriesFrom(input, _map_rooms_codec);
             break;
           }
         }

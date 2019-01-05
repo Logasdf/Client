@@ -7,7 +7,9 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using System;
 using Google.Protobuf.Packet.Room;
+using Assets.Scripts;
 
+// 이 클래스는 게임로비(대기실아님) UI 처리를 담당하는 클래스
 public class LobbyUIMgr : MonoBehaviour {
 
     public GameObject modalWindowPrefab; 
@@ -42,9 +44,28 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public void PopMessage(object obj, Type type)
     {
-        if(type.Name == "RoomList")
+        if(type.Name == "Data")
+        {
+            Data data = (Data)obj;
+            string contentType = data.DataMap["contentType"];
+            
+        }
+        else if(type.Name == "RoomList")
         {
             ShowRoomList((RoomList)obj);
+        }
+        else if(type.Name == "Room")
+        {
+            Debug.Log("Create/Enter Room Success!!");
+            Room room = (Room)obj;
+            roomContext.InitRoomContext(room);
+            SceneManager.LoadScene("WaitingRoom");
+            //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
+            //SceneManager.LoadScene("WaitingRoom");
+        }
+        else
+        {
+            Debug.Log("Type is not defined...., Check it!");
         }
     }
 
@@ -68,13 +89,15 @@ public class LobbyUIMgr : MonoBehaviour {
 
     private void ShowRoomList(RoomList roomList) 
     {
+        Debug.Log("RoomList Initialized!!");
         foreach (Transform child in scrollContent.transform)
         {
             Destroy(child.gameObject);
         }
 
-        foreach(Room room in roomList.Rooms)
+        foreach(var pair in roomList.Rooms)
         {
+            Room room = pair.Value;
             GameObject roomObj = Instantiate(roomItem);
             var textFields = roomObj.GetComponentsInChildren<Text>();
             textFields[0].text = room.Name;
@@ -82,9 +105,9 @@ public class LobbyUIMgr : MonoBehaviour {
             roomObj.GetComponent<Button>().onClick.AddListener( delegate {
                 OnClickRoomItem(textFields[0].text, room.Current, room.Limit);
             });
-            EventTrigger eTrigger = roomObj.AddComponent<EventTrigger>(); 
-            InitEventTriggerForRoomItem(eTrigger, roomObj); 
-            roomObj.transform.SetParent(scrollContent.transform, false); 
+            EventTrigger eTrigger = roomObj.AddComponent<EventTrigger>();
+            InitEventTriggerForRoomItem(eTrigger, roomObj);
+            roomObj.transform.SetParent(scrollContent.transform, false);
         }
     }
 
@@ -121,8 +144,12 @@ public class LobbyUIMgr : MonoBehaviour {
         string selectedVal = limitDropdown.options[limitDropdown.value].text; 
 
         Debug.Log("Room name : " + roomName + ", and the selected value is " + selectedVal);
-        roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
-        SceneManager.LoadScene("WaitingRoom");
+
+        Data data = new Data();
+        data.DataMap["contentType"] = "CREATE_ROOM";
+        data.DataMap["roomName"] = roomName;
+        data.DataMap["limits"] = selectedVal;
+        packetManager.PackMessage(protoObj: data);
     }
 
     private void OnClickRoomItem(string roomName, int currentUserCount, int userCountMax) // 방 입장
@@ -131,9 +158,15 @@ public class LobbyUIMgr : MonoBehaviour {
          * TODO : Send a message to the server and get the response.
          * With that response, the appropriate code block will be executed.
         */
-        Debug.Log("element clicked : " + roomName);
-        roomContext.EnterRoomAsParticipant(roomName); //test
-        SceneManager.LoadScene("WaitingRoom");
+
+        Data data = new Data();
+        data.DataMap["contentType"] = "ENTER_ROOM";
+        data.DataMap["roomName"] = roomName;
+        packetManager.PackMessage(protoObj: data);
+
+        //Debug.Log("element clicked : " + roomName);
+        //roomContext.EnterRoomAsParticipant(roomName); //test
+        //SceneManager.LoadScene("WaitingRoom");
     }
 
     private void ChangeObjectBgColor(GameObject obj, Color color)
