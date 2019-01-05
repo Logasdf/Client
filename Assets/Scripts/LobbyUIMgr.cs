@@ -5,109 +5,167 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
+using System;
+using Google.Protobuf.Packet.Room;
+using Assets.Scripts;
 
+// 이 클래스는 게임로비(대기실아님) UI 처리를 담당하는 클래스
 public class LobbyUIMgr : MonoBehaviour {
 
-    public GameObject modalWindowPrefab;
-    public GameObject roomItem;
-    public GameObject scrollContent;
+    public GameObject modalWindowPrefab; 
+    public GameObject roomItem; 
+    public GameObject scrollContent; 
+
+    private PacketManager packetManager;
     
-    public void RequestCreateModalWindow()
+    public void RequestCreateModalWindow() // 방만들기 버튼 이벤트 리스너가 이 함수를 호출함
     {
         CreateModalWindow();
     }
 
-    private Color selectedRoomColor = Color.gray;
+    private RoomContext roomContext;
+    private Color selectedRoomColor = Color.gray; 
     private Color unselectedRoomColor = Color.black;
     private Color nameFieldBlankColor = Color.red;
 
+    private void Awake()
+    {
+        Debug.Log(this.ToString() + " Awake()");
+        
+    }
+
     private void Start()
     {
-        ShowRoomList(); // test
+        Debug.Log("This is a LobbyUIMgr's Start()");
+        packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
+        packetManager.SetHandleMessage(PopMessage);
+        roomContext = RoomContext.GetInstance();
+    }
+
+    public void PopMessage(object obj, Type type)
+    {
+        if(type.Name == "Data")
+        {
+            Data data = (Data)obj;
+            string contentType = data.DataMap["contentType"];
+            
+        }
+        else if(type.Name == "RoomList")
+        {
+            ShowRoomList((RoomList)obj);
+        }
+        else if(type.Name == "Room")
+        {
+            Debug.Log("Create/Enter Room Success!!");
+            Room room = (Room)obj;
+            roomContext.InitRoomContext(room);
+            SceneManager.LoadScene("WaitingRoom");
+            //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
+            //SceneManager.LoadScene("WaitingRoom");
+        }
+        else
+        {
+            Debug.Log("Type is not defined...., Check it!");
+        }
     }
 
     private void InitEventTriggerForRoomItem(EventTrigger trigger, GameObject obj)
     {
         EventTrigger.Entry entry_PointerEnter = new EventTrigger.Entry()
         {
-            eventID = EventTriggerType.PointerEnter
-        };
+            eventID = EventTriggerType.PointerEnter 
+        };                                          
         entry_PointerEnter.callback.AddListener((data) => { ChangeObjectBgColor(obj, selectedRoomColor); });
 
         EventTrigger.Entry entry_PointerExit = new EventTrigger.Entry()
         {
-            eventID = EventTriggerType.PointerExit
-        };
+            eventID = EventTriggerType.PointerExit 
+        };                                        
         entry_PointerExit.callback.AddListener((data) => { ChangeObjectBgColor(obj, unselectedRoomColor); });
 
         trigger.triggers.Add(entry_PointerEnter);
-        trigger.triggers.Add(entry_PointerExit);
+        trigger.triggers.Add(entry_PointerExit); 
     }
 
-    private void ShowRoomList() // argument needed
+    private void ShowRoomList(RoomList roomList) 
     {
+        Debug.Log("RoomList Initialized!!");
         foreach (Transform child in scrollContent.transform)
         {
             Destroy(child.gameObject);
         }
-            
-        for (int i = 0; i < 10; i++)
+
+        foreach(var pair in roomList.Rooms)
         {
-            GameObject room = Instantiate(roomItem);
-            var textFields = room.GetComponentsInChildren<Text>();
-            textFields[0].text = "Room #" + (i + 1);
-            room.GetComponent<Button>().onClick.AddListener(delegate {
-                OnClickRoomItem(textFields[0].text);
+            Room room = pair.Value;
+            GameObject roomObj = Instantiate(roomItem);
+            var textFields = roomObj.GetComponentsInChildren<Text>();
+            textFields[0].text = room.Name;
+            textFields[1].text = string.Format("( {0,3:D2} / {1,3:D2} )", room.Current, room.Limit);
+            roomObj.GetComponent<Button>().onClick.AddListener( delegate {
+                OnClickRoomItem(textFields[0].text, room.Current, room.Limit);
             });
-            EventTrigger eTrigger = room.AddComponent<EventTrigger>();
-            InitEventTriggerForRoomItem(eTrigger, room);
-            room.transform.SetParent(scrollContent.transform, false);
+            EventTrigger eTrigger = roomObj.AddComponent<EventTrigger>();
+            InitEventTriggerForRoomItem(eTrigger, roomObj);
+            roomObj.transform.SetParent(scrollContent.transform, false);
         }
     }
 
-    private void CreateModalWindow() // it is possible to use enum as the argument of this func
+    private void CreateModalWindow() 
     {
-        Debug.Log("Successfully Executed");
-        GameObject modalWindow = Instantiate(modalWindowPrefab);
-        GameObject dialogWindow = modalWindow.transform.GetChild(0).gameObject;
+        GameObject modalWindow = Instantiate(modalWindowPrefab); 
+        GameObject dialogWindow = modalWindow.transform.GetChild(0).gameObject; 
+       
 
         Button submitBtn = dialogWindow.transform.Find("SubmitBtn").gameObject.GetComponent<Button>();
         Button cancelBtn = dialogWindow.transform.Find("CancelBtn").gameObject.GetComponent<Button>();
 
-        submitBtn.onClick.AddListener(delegate { SubmitCreateRoomRequest(dialogWindow); });
-        cancelBtn.onClick.AddListener(delegate { Destroy(modalWindow); });
+        submitBtn.onClick.AddListener(delegate { SubmitCreateRoomRequest(dialogWindow); }); 
+        cancelBtn.onClick.AddListener(delegate { Destroy(modalWindow); }); 
 
-        GameObject canvas = GameObject.Find("Canvas");
-        modalWindow.transform.SetParent(canvas.transform, false);
-        modalWindow.transform.SetAsLastSibling();
+        GameObject canvas = GameObject.Find("Canvas"); 
+        modalWindow.transform.SetParent(canvas.transform, false); 
+        modalWindow.transform.SetAsLastSibling(); 
     }
 
-    private void SubmitCreateRoomRequest(GameObject window)
+    private void SubmitCreateRoomRequest(GameObject window) // 방 만들기 대화상자에서 확인버튼 누르면 실행
     {
         //TODO : Send CREATE ROOM REQUEST to the server and Get the response.
-        InputField nameField = window.transform.Find("NameInputField").gameObject.GetComponent<InputField>();
-        string roomName = nameField.text;
+        InputField nameField = window.transform.Find("NameInputField").gameObject.GetComponent<InputField>(); 
+        string roomName = nameField.text; 
 
-        if(roomName.Trim() == "")
+        if(roomName.Trim() == "") 
         {
-            nameField.GetComponent<Image>().color = nameFieldBlankColor;
+            nameField.GetComponent<Image>().color = nameFieldBlankColor; 
             return;
         }
 
-        Dropdown limitDropdown = window.transform.Find("LimitDropdown").gameObject.GetComponent<Dropdown>();
-        string selectedVal = limitDropdown.options[limitDropdown.value].text;
+        Dropdown limitDropdown = window.transform.Find("LimitDropdown").gameObject.GetComponent<Dropdown>(); 
+        string selectedVal = limitDropdown.options[limitDropdown.value].text; 
 
         Debug.Log("Room name : " + roomName + ", and the selected value is " + selectedVal);
-        SceneManager.LoadScene("WaitingRoom");
+
+        Data data = new Data();
+        data.DataMap["contentType"] = "CREATE_ROOM";
+        data.DataMap["roomName"] = roomName;
+        data.DataMap["limits"] = selectedVal;
+        packetManager.PackMessage(protoObj: data);
     }
 
-    private void OnClickRoomItem(string roomName)
+    private void OnClickRoomItem(string roomName, int currentUserCount, int userCountMax) // 방 입장
     {
         /*
          * TODO : Send a message to the server and get the response.
          * With that response, the appropriate code block will be executed.
         */
-        Debug.Log("element clicked : " + roomName);
+
+        Data data = new Data();
+        data.DataMap["contentType"] = "ENTER_ROOM";
+        data.DataMap["roomName"] = roomName;
+        packetManager.PackMessage(protoObj: data);
+
+        //Debug.Log("element clicked : " + roomName);
+        //roomContext.EnterRoomAsParticipant(roomName); //test
         //SceneManager.LoadScene("WaitingRoom");
     }
 

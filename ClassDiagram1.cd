@@ -1,0 +1,104 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="LobbyButtonBehavior">
+    <Position X="0.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAgACAAAAAAAAAAAAAAAAAIAAAABAAAAAAAAgA=</HashCode>
+      <FileName>Assets\Scripts\LobbyButtonBehavior.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="LobbyUIMgr">
+    <Position X="2.5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAQAACAAAFBAAAAIAAEAEABIABAAIAAIYABAAEA=</HashCode>
+      <FileName>Assets\Scripts\LobbyUIMgr.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="PacketManager">
+    <Position X="7" Y="2.5" Width="2.5" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="PacketManager.HandleMessage" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\PacketManager.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>AABAAAAAACAAQAAUAEABAQAAAARFAAAAAACDAAAAAEA=</HashCode>
+      <FileName>Assets\Scripts\PacketManager.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="ServerConnection">
+    <Position X="5" Y="2.5" Width="1.75" />
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="ServerConnection.ReceiveCallback" Collapsed="true">
+        <TypeIdentifier>
+          <NewMemberFileName>Assets\Scripts\ServerConnection.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>ICAJAAAAACAAAAEAACAAAAAAABBAIgAAAAEAAAAAAEA=</HashCode>
+      <FileName>Assets\Scripts\ServerConnection.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WaitingRoomButtonBehavior">
+    <Position X="5" Y="0.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAEAAE=</HashCode>
+      <FileName>Assets\Scripts\WaitingRoomButtonBehavior.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="WaitingRoomUIMgr">
+    <Position X="7.5" Y="0.5" Width="1.75" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAACAAAAAAAAAAAAAABAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\WaitingRoomUIMgr.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Google.Protobuf.Packet.Room.RoomReflection" Collapsed="true">
+    <Position X="11.5" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAEAAAABAAAAAAAAAAAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Room.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="Google.Protobuf.Packet.Room.Client" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="2" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAADAEAAACYEgABAAAAASEEAAIAgAAAgAAAAIBA=</HashCode>
+      <FileName>Assets\Scripts\Room.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Google.Protobuf.Packet.Room.Room" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="1.25" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AEAgAAECAEAAASYEgSCAAY0QAEEAAIAgAgQAAAAAIBA=</HashCode>
+      <FileName>Assets\Scripts\Room.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Class Name="Google.Protobuf.Packet.Room.RoomList" Collapsed="true" BaseTypeListCollapsed="true">
+    <Position X="9.75" Y="0.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgAAACAEAgACYEgAIAAQACAEEAAIAgAAAAAAAAABA=</HashCode>
+      <FileName>Assets\Scripts\Room.cs</FileName>
+    </TypeIdentifier>
+    <Lollipop Position="0.2" Collapsed="true" />
+  </Class>
+  <Enum Name="Assets.Scripts.Request">
+    <Position X="9.75" Y="2.75" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAAAAAAAAAAAAAAAAAABAQAQAAAAAAAAAAAAAAAAAA=</HashCode>
+      <FileName>Assets\Scripts\Request.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="맑은 고딕" Size="9" />
+</ClassDiagram>

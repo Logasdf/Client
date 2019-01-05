@@ -3,8 +3,9 @@ guid: c8620fba662beec46a425726f78f5dc0
 MonoImporter:
   externalObjects: {}
   serializedVersion: 2
-  defaultReferences: []
-  executionOrder: 0
+  defaultReferences:
+  - eachUserPrefab: {instanceID: 0}
+  executionOrder: 350
   icon: {instanceID: 0}
   userData: 
   assetBundleName: 
