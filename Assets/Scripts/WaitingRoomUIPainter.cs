@@ -4,12 +4,75 @@ using UnityEngine;
 using UnityEngine.UI;
 
 public class WaitingRoomUIPainter : ScriptableObject {
+
+    public enum DrawType
+    {
+        REDONLY, BLUEONLY, BOTH
+    }
     private GameObject eachUserPrefab;
     private GameObject redList;
     private GameObject blueList;
     private GameObject[] eachUserPrefabPool;
-    private Color readyColor = Color.yellow;
-    private Color notReadyColor = Color.black;
+
+    private Text chatContents;
+    private Text[] usernameTextArray;
+
+    private readonly Color readyColor = Color.yellow;
+    private readonly Color notReadyColor = Color.black;
+
+
+    public void Init(int size, bool isHost)
+    {
+        CreateUserPrefabPool(size);
+        AssignPrefabsToEachList(size/2);
+        DisplayAppropriateButton(isHost);
+    }
+
+    public void ChangeReadyStateColor(int index, bool toReady)
+    {   
+        eachUserPrefabPool[index].GetComponent<Image>().color = toReady ? readyColor : notReadyColor;
+    }
+
+    public void DisplayAppropriateButton(bool isHost)
+    {
+        GameObject readyBtn = GameObject.Find("ReadyBtn");
+        GameObject startBtn = GameObject.Find("StartBtn");
+        if(isHost)
+        {
+            readyBtn.SetActive(false);
+            startBtn.SetActive(true);
+        }
+        else
+        {
+            readyBtn.SetActive(true);
+            startBtn.SetActive(false);
+        }
+    }
+
+    public void Draw(RoomContext rContext, DrawType drawType)
+    {
+        int maxCount = rContext.GetMaxUserCount()/2;
+        int redTeamIdx = rContext.GetRedTeamUserCount();
+        int blueTeamIdx = rContext.GetBlueTeamUserCount();
+        switch(drawType)
+        {
+            case DrawType.REDONLY :
+                DrawRedTeam(rContext);
+                break;
+            case DrawType.BLUEONLY:
+                DrawBlueTeam(rContext);
+                break;
+            case DrawType.BOTH:
+                DrawRedTeam(rContext);
+                DrawBlueTeam(rContext);
+                break;
+        }
+    }
+
+    public void AddMessageToChatWindow(string msg)
+    {
+        chatContents.text += msg + "\n";
+    }
 
     private RoomContext roomContext;
 
@@ -18,30 +81,34 @@ public class WaitingRoomUIPainter : ScriptableObject {
         eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
         redList = GameObject.Find("RedTeamList");
         blueList = GameObject.Find("BlueTeamList");
-        roomContext = RoomContext.GetInstance();
+        chatContents = GameObject.Find("ChatMessage").GetComponent<Text>();
+        //roomContext = RoomContext.GetInstance();
         ChangeGridCellSize();
-        CreateUserPrefabPool();
-        DrawUsers();
     }
 
-    public void ChangeReadyStateColor(int index, bool toReady)
-    {
-        eachUserPrefabPool[index].GetComponent<Image>().color = toReady ? readyColor : notReadyColor;
-    }
+    private void CreateUserPrefabPool(int size)
+    {   
+        eachUserPrefabPool = new GameObject[size];
+        usernameTextArray = new Text[size];
 
-    private void CreateUserPrefabPool()
-    {   //오브젝트풀
-        const int USERPREFAB_POOL_MAX = 16;
-        eachUserPrefabPool = new GameObject[USERPREFAB_POOL_MAX];
-        for (int i = 0; i < USERPREFAB_POOL_MAX; i++)
+        for (int i = 0; i < size; i++)
         {
             eachUserPrefabPool[i] = Instantiate(eachUserPrefab);
+            usernameTextArray[i] = eachUserPrefabPool[i].transform.Find("UserName").GetComponent<Text>();
         }
     }
 
-    private void DrawUsers()
+    private void DrawRedTeam(RoomContext rContext)
     {
-        //TODO : ROOMCONTEXT 속에 들어있는 정보들을 이용해서(args) 그려내기
+        int i = 0;
+        int redTeamIdx = rContext.GetRedTeamUserCount();
+        int maxCount = rContext.GetMaxUserCount() / 2;
+
+        for (; i < redTeamIdx; i++)
+            usernameTextArray[i].text = rContext.GetRedTeamUserName(i);
+        for (; i < maxCount; i++)
+            usernameTextArray[i].text = "";
+        /*
         int redTeamMaxIdx = roomContext.GetRedTeam().Count;
         int blueTeamMaxIdx = roomContext.GetBlueTeam().Count;
 
@@ -56,20 +123,32 @@ public class WaitingRoomUIPainter : ScriptableObject {
             string userName = roomContext.GetBlueTeam()[i].Ip + ":" + roomContext.GetBlueTeam()[i].Port;
             AddUserPrefabAsChildToList(roomContext.GetBlueTeam()[i].Position, userName, blueList.transform);
         }
-
-
-        //int redTeamMaxIdx = 8; //test
-        //int blueTeamMaxIdx = 8 + 8; // test
-
-        //for (int i = 0; i < redTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), redList.transform);
-        //for (int i = 8; i < blueTeamMaxIdx; i++) AddUserPrefabAsChildToList(i, "user" + (i + 1), blueList.transform);
+        */
     }
 
-    private void AddUserPrefabAsChildToList(int index, string name, Transform parent)
+    private void DrawBlueTeam(RoomContext rContext)
     {
-        Text userName = eachUserPrefabPool[index].transform.Find("UserName").GetComponent<Text>();
-        userName.text = name;
-        eachUserPrefabPool[index].transform.SetParent(parent,false);
+        int maxCount = rContext.GetMaxUserCount() / 2;
+        int i = maxCount;
+        int blueTeamIdx = maxCount + rContext.GetBlueTeamUserCount();
+
+        for (; i < blueTeamIdx; i++)
+            usernameTextArray[i].text = rContext.GetBlueTeamUserName(i % maxCount);
+
+        maxCount += maxCount;
+        for (; i < maxCount; i++)
+            usernameTextArray[i].text = "";
+    }
+
+    private void AssignPrefabsToEachList(int size)
+    {
+        int i = 0;
+        for (; i < size; i++)
+            eachUserPrefabPool[i].transform.SetParent(redList.transform, false);
+
+        size += size;
+        for (; i < size; i++)
+            eachUserPrefabPool[i].transform.SetParent(blueList.transform, false);
     }
 
     private void ChangeGridCellSize()

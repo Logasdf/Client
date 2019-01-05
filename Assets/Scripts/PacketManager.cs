@@ -11,6 +11,16 @@ public class PacketManager : MonoBehaviour {
 
     public delegate void HandleMessage(object obj, Type type);
 
+
+    private const int BUF_SIZE = 2048;
+    private static PacketManager instance;
+    private ServerConnection connection;
+    private CodedOutputStream cos;
+    private byte[] sendBuffer;
+    // UI Manager Component(들)에게 Data를 넘기기위한 Delegate
+    private HandleMessage handleMessage;
+
+
     public void SetHandleMessage(HandleMessage hm)
     {
         this.handleMessage = hm;
@@ -19,7 +29,6 @@ public class PacketManager : MonoBehaviour {
     public void PackMessage(int type = -1, IMessage protoObj = null)
     {
         Debug.Log("PackMessage Callback Method");
-
         ClearBuffer();
         cos = new CodedOutputStream(sendBuffer);
 
@@ -46,16 +55,7 @@ public class PacketManager : MonoBehaviour {
         cos.WriteFixed32((uint)byteLength);
         protoObj.WriteTo(cos);
     }
-
-    private const int BUF_SIZE = 2048;
-    private static PacketManager instance;
-    private ServerConnection connection;
-    private CodedOutputStream cos;
-    private byte[] sendBuffer;
-
-    // UI Manager Component(들)에게 Data를 넘기기위한 Delegate
-    private HandleMessage handleMessage;
-
+  
     private void Awake()
     {
         //Debug.Log(this.ToString() + " Awake()");

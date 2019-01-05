@@ -14,18 +14,16 @@ public class RoomContext {
     private EnterType EnterRoomType; // 입장형식 { 방장 / 참가자 }
     private string roomName;
     private int roomId;
-    private int currentUserCount; // 현재 유저 수
+    private int currentUserCount; // 현재 유저 수 ( 필요한가? )
     private int maxUserCount; // 해당 방의 최대 수용가능 인원
     private int myPosition; // Client class field
     private int readyCount;
 
     private List<Client> redTeamPlayers; // 일단 정해진게없어서 string으로 함
     private List<Client> blueTeamPlayers;
-    private int redTeamArrIdx; // 빨간팀 다음 추가 인덱스
-    private int blueTeamArrIdx; // 파란팀 다음 추가 인덱스
     private bool isReady; // Client class field
 
-    private const int MAX_PLAYER = 8; // 한팀에 최대 8명
+    private const int MAXPLAYER_ON_EACHSIDE = 8; // 한팀에 최대 8명
     private static RoomContext instance;
 
     //GETTER SETTER
@@ -35,23 +33,34 @@ public class RoomContext {
     public List<Client> GetRedTeam() { return redTeamPlayers; }
     public List<Client> GetBlueTeam() { return blueTeamPlayers; }
     public int GetCurrentUserCount() { return currentUserCount; }
-    public int GetRedTeamIndex() { return redTeamArrIdx; }
-    public int GetBlueTeamIndex() { return blueTeamArrIdx; }
+    public int GetMaxUserCount() { return maxUserCount; }
     public int GetMyPosition() { return myPosition; }
     public int GetRoomId() { return roomId; }
+    public int GetRedTeamUserCount() { return redTeamPlayers.Count; }
+    public int GetBlueTeamUserCount() { return blueTeamPlayers.Count; }
     public string GetRoomName() { return roomName; }
+    public string GetRedTeamUserName(int index) { return redTeamPlayers[index]; }
+    public string GetBlueTeamUserName(int index) { return blueTeamPlayers[index]; }
     public bool IsHost() { return EnterRoomType == EnterType.HOST; }
     public bool IsReady() { return isReady; }
 
-    public void EnterRoomAsHost(string rName, int mCount)
+    public void EnterRoomAsHost(string rName, int mCount) //test
     {   
-        EnterRoomType = EnterType.HOST; //test
+        EnterRoomType = EnterType.HOST; 
         maxUserCount = mCount;
-        currentUserCount = 1; // test
-        myPosition = 0; // test
+        currentUserCount = 1; 
+        myPosition = 0; 
         isReady = false;
         roomName = rName;
-        //AddUserToRedTeam("SELF"); // 자기 아이피랑 포트 저장해놓을 필요가 생겼다.
+
+        //test용
+        AddUserToTeam("SELF", 0);
+        AddUserToTeam("USER2", 1);
+        AddUserToTeam("USER3", 2);
+        AddUserToTeam("USER9", 8);
+        AddUserToTeam("USER10", 9);
+        AddUserToTeam("USER11", 10);
+        AddUserToTeam("USER12", 11);
     }
 
     public void EnterRoomAsParticipant(string rName) 
@@ -60,6 +69,34 @@ public class RoomContext {
         //아래 내용은 테스트
         EnterRoomType = EnterType.PARTICIPANT;
         myPosition = 6;
+    }
+
+    public void ChangeTeam(int prev, int next)
+    {
+        string userName = prev < MAXPLAYER_ON_EACHSIDE ? redTeamPlayers[prev] : blueTeamPlayers[prev % MAXPLAYER_ON_EACHSIDE];
+        AddUserToTeam(userName, next);
+        DeleteUserFromTeam(prev);
+
+        if (prev == myPosition)
+            myPosition = next;
+    }
+
+    public void AddUserToTeam(string name, int position)
+    {
+        if (position < MAXPLAYER_ON_EACHSIDE)
+            redTeamPlayers.Add(name);
+        else
+            blueTeamPlayers.Add(name);
+        currentUserCount++;
+    }
+
+    public void DeleteUserFromTeam(int position)
+    {
+        if (position < MAXPLAYER_ON_EACHSIDE)
+            redTeamPlayers.RemoveAt(position);
+        else
+            blueTeamPlayers.RemoveAt(position % MAXPLAYER_ON_EACHSIDE);
+        currentUserCount--;
     }
 
     public static RoomContext GetInstance() {
