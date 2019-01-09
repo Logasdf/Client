@@ -5,6 +5,7 @@ using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using DrawType = WaitingRoomUIPainter.DrawType;
+using Google.Protobuf.Packet.Room;
 using MapField = Google.Protobuf.Collections.MapField<string, string>;
 
 public class WaitingRoomUIMgr : MonoBehaviour {
@@ -12,7 +13,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     private RoomContext roomContext;
     private PacketManager packetManager;
     private WaitingRoomUIPainter painter;
-    private const int MAXEACH = 8;
+    private const int BLUEINDEXSTART = 8;
 
     public void OnStartButtonClicked()
     {
@@ -23,16 +24,14 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     {
         Tuple<string, string>[] keyValPairs =
         {
-            MakeKeyValuePair("content_type", "READY_EVENT"),
+            MakeKeyValuePair("contentType", "READY_EVENT"),
             MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
             MakeKeyValuePair("position", roomContext.GetMyPosition().ToString()),
-            MakeKeyValuePair("toReady", !roomContext.IsReady() ? "true" : "false")
+            MakeKeyValuePair("toReady", !roomContext.GetClient(roomContext.GetMyPosition()).Ready ? "true" : "false")
         };
         Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
 
-        //packetManager.SerializeAndSend(request);
-        painter.ChangeReadyStateColor(GetCalculatedIndex(roomContext.GetMyPosition()), !roomContext.IsReady());
-        roomContext.ReverseReadyState();
+        packetManager.PackMessage(protoObj: request);
     }
 
     public void OnLeaveButtonClicked()
@@ -42,13 +41,13 @@ public class WaitingRoomUIMgr : MonoBehaviour {
        
         Tuple<string, string>[] keyValPairs =
         {
-           MakeKeyValuePair("content_type", "LEAVE_GAMEROOM"),
+           MakeKeyValuePair("contentType", "LEAVE_GAMEROOM"),
            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
            MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
         };
         Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
-        //packetManager.SerializeAndSend(request);
-        SceneManager.LoadScene("GameLobby");
+        packetManager.PackMessage(protoObj : request);
+        //SceneManager.LoadScene("GameLobby");
     }
 
     public void OnTeamChangeButtonClicked()
@@ -58,13 +57,13 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
         Tuple<string, string>[] keyValPairs =
         {
-            MakeKeyValuePair("content_type", "TEAM_CHANGE"),
+            MakeKeyValuePair("contentType", "TEAM_CHANGE"),
             MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-            MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
+            MakeKeyValuePair("prev_position", roomContext.GetMyPosition().ToString())
         };
 
         Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
-        //packetManager.SerializeAndSend(data);
+        packetManager.PackMessage(protoObj: request);
     }
 
     public void OnChatEndEdit(InputField chatField)
@@ -76,7 +75,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
             {
                 Tuple<string, string>[] keyValPairs =
                 {
-                    MakeKeyValuePair("content_type", "CHAT_MESSAGE"),
+                    MakeKeyValuePair("contentType", "CHAT_MESSAGE"),
                     MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
                     MakeKeyValuePair("message", message)
                 };
@@ -92,14 +91,20 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     {
         roomContext = RoomContext.GetInstance();
         packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
+        packetManager.SetHandleMessage(PopMessage);
         painter = (WaitingRoomUIPainter)ScriptableObject.CreateInstance("WaitingRoomUIPainter");
         painter.Init(roomContext.GetMaxUserCount(), roomContext.IsHost());
         painter.Draw(roomContext, DrawType.BOTH);
     }
 
+    private void ProcessUserEnterEventReceived(Client newClient)
+    {
+        roomContext.AddUserToTeam(newClient, newClient.Position);
+        TellPainterToDraw(newClient.Position);
+    }
+
     private void ProcessTeamChangeEventReceived(MapField response) //test private
     {
-        //서버에서 오는 정보는 과거 위치와 이동할 위치라고 가정하자.
         int prevPos = int.Parse(response["prev_position"]);
         int nextPos = int.Parse(response["next_position"]);
 
@@ -109,7 +114,9 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void ProcessReadyEventReceived(MapField response) //test private
     {
-        painter.ChangeReadyStateColor(GetCalculatedIndex(int.Parse(response["position"])), bool.Parse(response["toReady"]));
+        int position = int.Parse(response["position"]);
+        painter.ChangeReadyStateColor(GetCalculatedIndex(position), bool.Parse(response["toReady"]));
+        roomContext.ReverseReadyState(position);
     }
 
     private void ProcessLeaveEventReceived(MapField response)
@@ -117,10 +124,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         int position = int.Parse(response["position"]);
         roomContext.DeleteUserFromTeam(position);
 
-        if (position < MAXEACH)
-            painter.Draw(roomContext, DrawType.REDONLY);
-        else
-            painter.Draw(roomContext, DrawType.BLUEONLY);
+        TellPainterToDraw(position);
     }
 
     private void ProcessChatMessageReceived(string response)
@@ -131,8 +135,8 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     private int GetCalculatedIndex(int val)
     {
         int ret = val;
-        if (ret >= MAXEACH)
-            ret = (ret % MAXEACH) + (roomContext.GetMaxUserCount() / 2);
+        if (ret >= BLUEINDEXSTART)
+            ret = (ret % BLUEINDEXSTART) + (roomContext.GetMaxUserCount() / 2);
         return ret;
     }
 
@@ -151,5 +155,52 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     private Tuple<string, string> MakeKeyValuePair(string key, string value)
     {
         return new Tuple<string, string>(key, value);
+    }
+
+    private void PopMessage(object obj, Type type)
+    {
+        if(type.Name == "Data")
+        {
+            MapField response = ((Data)obj).DataMap;
+            string contentType = response["contentType"];
+            switch(contentType)
+            {
+                case "TEAM_CHANGE":
+                    ProcessTeamChangeEventReceived(response);
+                    break;
+
+                case "LEAVE_GAME":
+                    break;
+
+                case "READY_EVENT":
+                    ProcessReadyEventReceived(response);
+                    break;
+
+                default:
+                    break;
+            }
+        }
+        else if (type.Name == "Client")
+        {
+            ProcessUserEnterEventReceived((Client)obj);
+        }
+        else
+        {
+            Debug.Log("type unidentified. please check");
+        }
+    }
+
+    private void TellPainterToDraw(int position = -1)
+    {
+        if(position == -1)
+        {
+            painter.Draw(roomContext, DrawType.BOTH);
+            return;
+        }
+
+        if (position < BLUEINDEXSTART)
+            painter.Draw(roomContext, DrawType.REDONLY);
+        else
+            painter.Draw(roomContext, DrawType.BLUEONLY);
     }
 } 

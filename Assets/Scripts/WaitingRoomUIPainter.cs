@@ -74,15 +74,12 @@ public class WaitingRoomUIPainter : ScriptableObject {
         chatContents.text += msg + "\n";
     }
 
-    private RoomContext roomContext;
-
     private void OnEnable()
     {
         eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
         redList = GameObject.Find("RedTeamList");
         blueList = GameObject.Find("BlueTeamList");
         chatContents = GameObject.Find("ChatMessage").GetComponent<Text>();
-        //roomContext = RoomContext.GetInstance();
         ChangeGridCellSize();
     }
 
@@ -105,25 +102,9 @@ public class WaitingRoomUIPainter : ScriptableObject {
         int maxCount = rContext.GetMaxUserCount() / 2;
 
         for (; i < redTeamIdx; i++)
-            usernameTextArray[i].text = rContext.GetRedTeamUserName(i);
+            usernameTextArray[i].text = rContext.GetRedTeamClient(i).Name;
         for (; i < maxCount; i++)
             usernameTextArray[i].text = "";
-        /*
-        int redTeamMaxIdx = roomContext.GetRedTeam().Count;
-        int blueTeamMaxIdx = roomContext.GetBlueTeam().Count;
-
-        for(int i = 0; i < redTeamMaxIdx; ++i)
-        {
-            string userName = roomContext.GetRedTeam()[i].Ip + ":" + roomContext.GetRedTeam()[i].Port;
-            AddUserPrefabAsChildToList(roomContext.GetRedTeam()[i].Position, userName, redList.transform);
-        }
-
-        for(int i = 0; i < blueTeamMaxIdx; ++i)
-        {
-            string userName = roomContext.GetBlueTeam()[i].Ip + ":" + roomContext.GetBlueTeam()[i].Port;
-            AddUserPrefabAsChildToList(roomContext.GetBlueTeam()[i].Position, userName, blueList.transform);
-        }
-        */
     }
 
     private void DrawBlueTeam(RoomContext rContext)
@@ -133,7 +114,7 @@ public class WaitingRoomUIPainter : ScriptableObject {
         int blueTeamIdx = maxCount + rContext.GetBlueTeamUserCount();
 
         for (; i < blueTeamIdx; i++)
-            usernameTextArray[i].text = rContext.GetBlueTeamUserName(i % maxCount);
+            usernameTextArray[i].text = rContext.GetBlueTeamClient(i % maxCount).Name;
 
         maxCount += maxCount;
         for (; i < maxCount; i++)
