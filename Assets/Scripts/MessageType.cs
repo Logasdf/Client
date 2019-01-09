@@ -25,7 +25,7 @@ namespace Assets.Scripts
         {
             { typeof(Data), DATA },
             { typeof(RoomList), ROOMLIST },
-            { typeof(Room), ROOM },
+            { typeof(RoomInfo), ROOM },
             { typeof(Client), CLIENT }
         };
 
@@ -33,7 +33,7 @@ namespace Assets.Scripts
         {
             { DATA, typeof(Data) },
             { ROOMLIST, typeof(RoomList) },
-            { ROOM, typeof(Room) },
+            { ROOM, typeof(RoomInfo) },
             { CLIENT, typeof(Client) }
         };
     }

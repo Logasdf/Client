@@ -48,16 +48,22 @@ public class LobbyUIMgr : MonoBehaviour {
         {
             Data data = (Data)obj;
             string contentType = data.DataMap["contentType"];
-            
+            Debug.Log(contentType);
+            switch(contentType)
+            {
+                case "ASSIGN_USERNAME":
+                    roomContext.SetUsername(data.DataMap["userName"]);
+                    break;
+            }
         }
         else if(type.Name == "RoomList")
         {
             ShowRoomList((RoomList)obj);
         }
-        else if(type.Name == "Room")
+        else if(type.Name == "RoomInfo")
         {
             Debug.Log("Create/Enter Room Success!!");
-            Room room = (Room)obj;
+            RoomInfo room = (RoomInfo)obj;
             roomContext.InitRoomContext(room);
             SceneManager.LoadScene("WaitingRoom");
             //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
@@ -97,7 +103,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
         foreach(var pair in roomList.Rooms)
         {
-            Room room = pair.Value;
+            RoomInfo room = pair.Value;
             GameObject roomObj = Instantiate(roomItem);
             var textFields = roomObj.GetComponentsInChildren<Text>();
             textFields[0].text = room.Name;
@@ -149,6 +155,7 @@ public class LobbyUIMgr : MonoBehaviour {
         data.DataMap["contentType"] = "CREATE_ROOM";
         data.DataMap["roomName"] = roomName;
         data.DataMap["limits"] = selectedVal;
+        data.DataMap["userName"] = roomContext.GetMyUsername();
         packetManager.PackMessage(protoObj: data);
     }
 
@@ -162,6 +169,7 @@ public class LobbyUIMgr : MonoBehaviour {
         Data data = new Data();
         data.DataMap["contentType"] = "ENTER_ROOM";
         data.DataMap["roomName"] = roomName;
+        data.DataMap["userName"] = roomContext.GetMyUsername();
         packetManager.PackMessage(protoObj: data);
 
         //Debug.Log("element clicked : " + roomName);

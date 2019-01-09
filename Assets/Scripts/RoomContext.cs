@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 using Google.Protobuf.Packet.Room;
+using System.Net;
+using System.Net.Sockets;
 
 public class RoomContext {
     //테스트용 클래스
@@ -13,6 +15,7 @@ public class RoomContext {
 
     private EnterType EnterRoomType; // 입장형식 { 방장 / 참가자 }
     private string roomName;
+    private string myUsername;
     private int roomId;
     private int currentUserCount; // 현재 유저 수 ( 필요한가? )
     private int maxUserCount; // 해당 방의 최대 수용가능 인원
@@ -27,11 +30,10 @@ public class RoomContext {
     private static RoomContext instance;
 
     //GETTER SETTER
-    public void ReverseReadyState() { isReady = !isReady; }
+    public void ReverseReadyState(int index) { GetClient(index).Ready = !GetClient(index).Ready; }
     public void SetRoomId(int val) { roomId = val; }
+    public void SetUsername(string val) { myUsername = val; }
     //public void SetRoomName(string val) { roomName = val; }
-    public List<Client> GetRedTeam() { return redTeamPlayers; }
-    public List<Client> GetBlueTeam() { return blueTeamPlayers; }
     public int GetCurrentUserCount() { return currentUserCount; }
     public int GetMaxUserCount() { return maxUserCount; }
     public int GetMyPosition() { return myPosition; }
@@ -39,54 +41,30 @@ public class RoomContext {
     public int GetRedTeamUserCount() { return redTeamPlayers.Count; }
     public int GetBlueTeamUserCount() { return blueTeamPlayers.Count; }
     public string GetRoomName() { return roomName; }
-    public string GetRedTeamUserName(int index) { return redTeamPlayers[index]; }
-    public string GetBlueTeamUserName(int index) { return blueTeamPlayers[index]; }
+    public string GetMyUsername() { return myUsername; }
+    public Client GetClient(int index) { return index < MAXPLAYER_ON_EACHSIDE ? 
+            GetRedTeamClient(index) : GetBlueTeamClient(index % MAXPLAYER_ON_EACHSIDE); }
+    public Client GetRedTeamClient(int index) { return redTeamPlayers[index]; }
+    public Client GetBlueTeamClient(int index) { return blueTeamPlayers[index]; }
     public bool IsHost() { return EnterRoomType == EnterType.HOST; }
     public bool IsReady() { return isReady; }
 
-    public void EnterRoomAsHost(string rName, int mCount) //test
-    {   
-        EnterRoomType = EnterType.HOST; 
-        maxUserCount = mCount;
-        currentUserCount = 1; 
-        myPosition = 0; 
-        isReady = false;
-        roomName = rName;
-
-        //test용
-        AddUserToTeam("SELF", 0);
-        AddUserToTeam("USER2", 1);
-        AddUserToTeam("USER3", 2);
-        AddUserToTeam("USER9", 8);
-        AddUserToTeam("USER10", 9);
-        AddUserToTeam("USER11", 10);
-        AddUserToTeam("USER12", 11);
-    }
-
-    public void EnterRoomAsParticipant(string rName) 
-    {
-        //TODO : 서버에게서 입장이 가능하다는 응답이 오면 그 응답과 함께 온 정보를 이용해서 세팅해야함
-        //아래 내용은 테스트
-        EnterRoomType = EnterType.PARTICIPANT;
-        myPosition = 6;
-    }
-
     public void ChangeTeam(int prev, int next)
     {
-        string userName = prev < MAXPLAYER_ON_EACHSIDE ? redTeamPlayers[prev] : blueTeamPlayers[prev % MAXPLAYER_ON_EACHSIDE];
-        AddUserToTeam(userName, next);
+        Client user = GetClient(prev);
+        AddUserToTeam(user, next);
         DeleteUserFromTeam(prev);
 
         if (prev == myPosition)
             myPosition = next;
     }
 
-    public void AddUserToTeam(string name, int position)
+    public void AddUserToTeam(Client user, int position)
     {
         if (position < MAXPLAYER_ON_EACHSIDE)
-            redTeamPlayers.Add(name);
+            redTeamPlayers.Add(user);
         else
-            blueTeamPlayers.Add(name);
+            blueTeamPlayers.Add(user);
         currentUserCount++;
     }
 
@@ -109,15 +87,14 @@ public class RoomContext {
         return instance;
 	}
 
-    public void InitRoomContext(Room room)
+    public void InitRoomContext(RoomInfo room)
     {
         roomId = room.RoomId;
         roomName = room.Name;
         readyCount = room.ReadyCount;
         currentUserCount = room.Current;
         maxUserCount = room.Limit;
-        myPosition = room.MyPosition;
-
+       
         redTeamPlayers = new List<Client>();
         foreach (var clnt in room.RedTeam)
         {
@@ -128,12 +105,26 @@ public class RoomContext {
         {
             blueTeamPlayers.Add(clnt);
         }
+        //for test
+        myPosition = SeekMyPosition();//room.MyPosition;
+
+        if (myPosition != room.Host)
+            EnterRoomType = EnterType.PARTICIPANT;
+        else
+            EnterRoomType = EnterType.HOST;
+        //
     }
 
-    private RoomContext()
-    {   //initialize
-        //redTeamPlayers = new List<string>();
-        //blueTeamPlayers = new List<string>();
-        //redTeamArrIdx = blueTeamArrIdx = 0;
+    private int SeekMyPosition()
+    {
+        for (int i = 0; i < GetRedTeamUserCount(); i++)
+            if (GetRedTeamClient(i).Name == myUsername) // == myNickname;
+                return i;
+        for (int i = 0; i < GetBlueTeamUserCount(); i++)
+            if (GetBlueTeamClient(i).Name == myUsername) // == myNickname;
+                return i + 8;
+        return -1;
     }
+
+    private RoomContext() { }
 }
