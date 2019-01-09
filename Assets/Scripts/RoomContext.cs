@@ -39,8 +39,8 @@ public class RoomContext {
     public int GetRedTeamUserCount() { return redTeamPlayers.Count; }
     public int GetBlueTeamUserCount() { return blueTeamPlayers.Count; }
     public string GetRoomName() { return roomName; }
-    public string GetRedTeamUserName(int index) { return redTeamPlayers[index]; }
-    public string GetBlueTeamUserName(int index) { return blueTeamPlayers[index]; }
+    public string GetRedTeamUserName(int index) { return redTeamPlayers[index].ToString(); }
+    public string GetBlueTeamUserName(int index) { return blueTeamPlayers[index].ToString(); }
     public bool IsHost() { return EnterRoomType == EnterType.HOST; }
     public bool IsReady() { return isReady; }
 
@@ -73,7 +73,7 @@ public class RoomContext {
 
     public void ChangeTeam(int prev, int next)
     {
-        string userName = prev < MAXPLAYER_ON_EACHSIDE ? redTeamPlayers[prev] : blueTeamPlayers[prev % MAXPLAYER_ON_EACHSIDE];
+        string userName = (prev < MAXPLAYER_ON_EACHSIDE) ? redTeamPlayers[prev].ToString() : blueTeamPlayers[prev % MAXPLAYER_ON_EACHSIDE].ToString();
         AddUserToTeam(userName, next);
         DeleteUserFromTeam(prev);
 
@@ -83,11 +83,11 @@ public class RoomContext {
 
     public void AddUserToTeam(string name, int position)
     {
-        if (position < MAXPLAYER_ON_EACHSIDE)
-            redTeamPlayers.Add(name);
-        else
-            blueTeamPlayers.Add(name);
-        currentUserCount++;
+        //if (position < MAXPLAYER_ON_EACHSIDE)
+        //    redTeamPlayers.Add(name);
+        //else
+        //    blueTeamPlayers.Add(name);
+        //currentUserCount++;
     }
 
     public void DeleteUserFromTeam(int position)
