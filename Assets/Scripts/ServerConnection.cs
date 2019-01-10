@@ -6,11 +6,12 @@ using System.Threading;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
+using System.Net;
 
 public class ServerConnection : MonoBehaviour {
     
     // Callback method declaration...
-    public delegate void ReceiveCallback(byte[] buffer);
+    public delegate void ReceiveCallback(byte[] buffer, int readBytes);
 
     // Setting Callback method 
     public void SetReceiveCallBack(ReceiveCallback cb)
@@ -26,7 +27,7 @@ public class ServerConnection : MonoBehaviour {
             return;
 
         await nStream.WriteAsync(msg, 0, size);
-        Debug.Log("Send Completed");
+        Debug.Log("Send Completed, size : " + size);
     }
     
     private const string ADDR = "127.0.0.1";
@@ -62,8 +63,10 @@ public class ServerConnection : MonoBehaviour {
     {
         Debug.Log("ServerConnection OnDestroy()");
         isEnd = true;
-        nStream.Close();
-        //socket.Close();
+        if(nStream != null)
+            nStream.Close();
+        if(socket != null)
+            socket.Close();
     }
 
     private async Task CreateConnection()
@@ -86,9 +89,8 @@ public class ServerConnection : MonoBehaviour {
         {
             int readBytes = await nStream.ReadAsync(buffer, 0, BUF_SIZE);
             Debug.Log(string.Format("Read Bytes From Server: {0}", readBytes));
-            receiveCallback(buffer);
+            receiveCallback(buffer, readBytes);
             Array.Clear(buffer, 0, BUF_SIZE);
         }
     }
-
 }

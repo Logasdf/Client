@@ -12,6 +12,8 @@ public class WaitingRoomUIPainter : ScriptableObject {
     private GameObject eachUserPrefab;
     private GameObject redList;
     private GameObject blueList;
+    private GameObject readyBtn;
+    private GameObject startBtn;
     private GameObject[] eachUserPrefabPool;
 
     private Text chatContents;
@@ -23,20 +25,21 @@ public class WaitingRoomUIPainter : ScriptableObject {
 
     public void Init(int size, bool isHost)
     {
+        readyBtn = GameObject.Find("ReadyBtn");
+        startBtn = GameObject.Find("StartBtn");
+ 
         CreateUserPrefabPool(size);
         AssignPrefabsToEachList(size/2);
         DisplayAppropriateButton(isHost);
     }
 
     public void ChangeReadyStateColor(int index, bool toReady)
-    {   
+    {
         eachUserPrefabPool[index].GetComponent<Image>().color = toReady ? readyColor : notReadyColor;
     }
 
     public void DisplayAppropriateButton(bool isHost)
     {
-        GameObject readyBtn = GameObject.Find("ReadyBtn");
-        GameObject startBtn = GameObject.Find("StartBtn");
         if(isHost)
         {
             readyBtn.SetActive(false);
@@ -50,7 +53,7 @@ public class WaitingRoomUIPainter : ScriptableObject {
     }
 
     public void Draw(RoomContext rContext, DrawType drawType)
-    {
+    {   //텍스트랑 색상그리는거를 나눠야 더 좋을 것 같은데.....
         int maxCount = rContext.GetMaxUserCount()/2;
         int redTeamIdx = rContext.GetRedTeamUserCount();
         int blueTeamIdx = rContext.GetBlueTeamUserCount();
@@ -74,15 +77,12 @@ public class WaitingRoomUIPainter : ScriptableObject {
         chatContents.text += msg + "\n";
     }
 
-    private RoomContext roomContext;
-
     private void OnEnable()
     {
         eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
         redList = GameObject.Find("RedTeamList");
         blueList = GameObject.Find("BlueTeamList");
         chatContents = GameObject.Find("ChatMessage").GetComponent<Text>();
-        //roomContext = RoomContext.GetInstance();
         ChangeGridCellSize();
     }
 
@@ -105,25 +105,15 @@ public class WaitingRoomUIPainter : ScriptableObject {
         int maxCount = rContext.GetMaxUserCount() / 2;
 
         for (; i < redTeamIdx; i++)
-            usernameTextArray[i].text = rContext.GetRedTeamUserName(i);
+        {
+            usernameTextArray[i].text = rContext.GetRedTeamClient(i).Name;
+            ChangeReadyStateColor(i, rContext.GetRedTeamClient(i).Ready);
+        }
         for (; i < maxCount; i++)
+        {
             usernameTextArray[i].text = "";
-        /*
-        int redTeamMaxIdx = roomContext.GetRedTeam().Count;
-        int blueTeamMaxIdx = roomContext.GetBlueTeam().Count;
-
-        for(int i = 0; i < redTeamMaxIdx; ++i)
-        {
-            string userName = roomContext.GetRedTeam()[i].Ip + ":" + roomContext.GetRedTeam()[i].Port;
-            AddUserPrefabAsChildToList(roomContext.GetRedTeam()[i].Position, userName, redList.transform);
+            ChangeReadyStateColor(i, false);
         }
-
-        for(int i = 0; i < blueTeamMaxIdx; ++i)
-        {
-            string userName = roomContext.GetBlueTeam()[i].Ip + ":" + roomContext.GetBlueTeam()[i].Port;
-            AddUserPrefabAsChildToList(roomContext.GetBlueTeam()[i].Position, userName, blueList.transform);
-        }
-        */
     }
 
     private void DrawBlueTeam(RoomContext rContext)
@@ -133,11 +123,16 @@ public class WaitingRoomUIPainter : ScriptableObject {
         int blueTeamIdx = maxCount + rContext.GetBlueTeamUserCount();
 
         for (; i < blueTeamIdx; i++)
-            usernameTextArray[i].text = rContext.GetBlueTeamUserName(i % maxCount);
-
+        {
+            usernameTextArray[i].text = rContext.GetBlueTeamClient(i % maxCount).Name;
+            ChangeReadyStateColor(i, rContext.GetBlueTeamClient(i % maxCount).Ready);
+        }
         maxCount += maxCount;
         for (; i < maxCount; i++)
+        {
             usernameTextArray[i].text = "";
+            ChangeReadyStateColor(i, false);
+        }
     }
 
     private void AssignPrefabsToEachList(int size)

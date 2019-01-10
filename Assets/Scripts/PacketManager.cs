@@ -90,9 +90,10 @@ public class PacketManager : MonoBehaviour {
         connection.SetReceiveCallBack(UnpackMessage);
     }
 
-    private void UnpackMessage(byte[] buffer)
+    private void UnpackMessage(byte[] buffer, int readBytes)
     {   
         //메시지가 수신되었을 때 실행되는 콜백함수 
+        //수정1. 프로토콜버퍼에서 전송을 할 때 덩어리의 전송을 보장한다는 가정을 했을 때
         Debug.Log("UnpackMessage Callback Method");
 
         CodedInputStream cis = new CodedInputStream(buffer, 0, 8);
@@ -100,7 +101,9 @@ public class PacketManager : MonoBehaviour {
         //int length = BitConverter.ToInt32(buffer, 4);
         int type = (int)cis.ReadFixed32();
         int length = (int)cis.ReadFixed32();
+        Debug.Log(type);
         object body = null;
+        bool hasMore = readBytes > 8 + length ? true : false;
 
         if(length == 0)
         {
@@ -119,6 +122,15 @@ public class PacketManager : MonoBehaviour {
                 return;
             }
         }
+        //JS TEST
+        if(hasMore)
+        {
+            int size = readBytes - (8 + length);
+            byte[] tempArr = new byte[size];
+            Array.Copy(buffer, 8 + length, tempArr, 0, size);
+            UnpackMessage(tempArr, size);
+        }
+            
     }
 
     private object DeserializeMessageBody(byte[] buffer, int start, int length, Type type)
