@@ -44,6 +44,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public void PopMessage(object obj, Type type)
     {
+        Debug.Log(type.Name); //test
         if(type.Name == "Data")
         {
             Data data = (Data)obj;

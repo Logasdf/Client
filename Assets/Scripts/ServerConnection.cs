@@ -63,8 +63,10 @@ public class ServerConnection : MonoBehaviour {
     {
         Debug.Log("ServerConnection OnDestroy()");
         isEnd = true;
-        nStream.Close();
-        //socket.Close();
+        if(nStream != null)
+            nStream.Close();
+        if(socket != null)
+            socket.Close();
     }
 
     private async Task CreateConnection()

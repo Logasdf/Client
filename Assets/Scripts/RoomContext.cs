@@ -6,7 +6,6 @@ using System.Net;
 using System.Net.Sockets;
 
 public class RoomContext {
-    //테스트용 클래스
 
     private enum EnterType
     {
@@ -26,11 +25,10 @@ public class RoomContext {
     private List<Client> blueTeamPlayers;
     private bool isReady; // Client class field
 
-    private const int MAXPLAYER_ON_EACHSIDE = 8; // 한팀에 최대 8명
+    private const int BLUEINDEXSTART = 8; // 한팀에 최대 8명
     private static RoomContext instance;
 
     //GETTER SETTER
-    public void ReverseReadyState(int index) { GetClient(index).Ready = !GetClient(index).Ready; }
     public void SetRoomId(int val) { roomId = val; }
     public void SetUsername(string val) { myUsername = val; }
     //public void SetRoomName(string val) { roomName = val; }
@@ -42,12 +40,19 @@ public class RoomContext {
     public int GetBlueTeamUserCount() { return blueTeamPlayers.Count; }
     public string GetRoomName() { return roomName; }
     public string GetMyUsername() { return myUsername; }
-    public Client GetClient(int index) { return index < MAXPLAYER_ON_EACHSIDE ? 
-            GetRedTeamClient(index) : GetBlueTeamClient(index % MAXPLAYER_ON_EACHSIDE); }
+    public Client GetClient(int index) { return index < BLUEINDEXSTART ? 
+            GetRedTeamClient(index) : GetBlueTeamClient(index % BLUEINDEXSTART); }
     public Client GetRedTeamClient(int index) { return redTeamPlayers[index]; }
     public Client GetBlueTeamClient(int index) { return blueTeamPlayers[index]; }
     public bool IsHost() { return EnterRoomType == EnterType.HOST; }
     public bool IsReady() { return isReady; }
+
+    public void ReverseReadyState(int index)
+    {
+        GetClient(index).Ready = !GetClient(index).Ready;
+        if (index == myPosition)
+            isReady = !isReady;
+    }
 
     public void ChangeTeam(int prev, int next)
     {
@@ -56,12 +61,12 @@ public class RoomContext {
         DeleteUserFromTeam(prev);
 
         if (prev == myPosition)
-            myPosition = next;
+           myPosition = next;
     }
 
     public void AddUserToTeam(Client user, int position)
     {
-        if (position < MAXPLAYER_ON_EACHSIDE)
+        if (position < BLUEINDEXSTART)
             redTeamPlayers.Add(user);
         else
             blueTeamPlayers.Add(user);
@@ -70,11 +75,15 @@ public class RoomContext {
 
     public void DeleteUserFromTeam(int position)
     {
-        if (position < MAXPLAYER_ON_EACHSIDE)
+        if (position < BLUEINDEXSTART)
             redTeamPlayers.RemoveAt(position);
         else
-            blueTeamPlayers.RemoveAt(position % MAXPLAYER_ON_EACHSIDE);
+            blueTeamPlayers.RemoveAt(position % BLUEINDEXSTART);
         currentUserCount--;
+
+        if(((myPosition < BLUEINDEXSTART && position < BLUEINDEXSTART) || 
+            (myPosition >= BLUEINDEXSTART && position >= BLUEINDEXSTART)) && myPosition > position)
+            myPosition = SeekMyPosition();
     }
 
     public static RoomContext GetInstance() {
@@ -105,23 +114,22 @@ public class RoomContext {
         {
             blueTeamPlayers.Add(clnt);
         }
-        //for test
-        myPosition = SeekMyPosition();//room.MyPosition;
+
+        myPosition = SeekMyPosition();
 
         if (myPosition != room.Host)
             EnterRoomType = EnterType.PARTICIPANT;
         else
             EnterRoomType = EnterType.HOST;
-        //
     }
 
     private int SeekMyPosition()
     {
         for (int i = 0; i < GetRedTeamUserCount(); i++)
-            if (GetRedTeamClient(i).Name == myUsername) // == myNickname;
+            if (GetRedTeamClient(i).Name == myUsername) 
                 return i;
         for (int i = 0; i < GetBlueTeamUserCount(); i++)
-            if (GetBlueTeamClient(i).Name == myUsername) // == myNickname;
+            if (GetBlueTeamClient(i).Name == myUsername) 
                 return i + 8;
         return -1;
     }

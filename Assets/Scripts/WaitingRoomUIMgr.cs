@@ -47,7 +47,8 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         };
         Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
         packetManager.PackMessage(protoObj : request);
-        //SceneManager.LoadScene("GameLobby");
+
+        SceneManager.LoadScene("GameLobby");
     }
 
     public void OnTeamChangeButtonClicked()
@@ -123,21 +124,26 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     {
         int position = int.Parse(response["position"]);
         roomContext.DeleteUserFromTeam(position);
-
         TellPainterToDraw(position);
+    }
+
+    private void ProcessHostChangeEventReceived(MapField response)
+    {
+        int newHostPos = int.Parse(response["newHost"]);
+        //방장을 저장하는게 없네 현재... 정보는 클라이언트에서 가지고있어서 간단한 문제라 이건 나중에 의논하기로..
+        if (newHostPos == roomContext.GetMyPosition())
+        { //내가 방장이 된 경우
+            painter.DisplayAppropriateButton(true);
+            if(roomContext.IsReady())
+            { //레디상태라면 레디 풀어야함
+                OnReadyButtonClicked();
+            }
+        }
     }
 
     private void ProcessChatMessageReceived(string response)
     {
         painter.AddMessageToChatWindow(response);
-    }
-
-    private int GetCalculatedIndex(int val)
-    {
-        int ret = val;
-        if (ret >= BLUEINDEXSTART)
-            ret = (ret % BLUEINDEXSTART) + (roomContext.GetMaxUserCount() / 2);
-        return ret;
     }
 
     //이게 좋은건가,,,
@@ -169,11 +175,16 @@ public class WaitingRoomUIMgr : MonoBehaviour {
                     ProcessTeamChangeEventReceived(response);
                     break;
 
-                case "LEAVE_GAME":
+                case "LEAVE_GAMEROOM":
+                    ProcessLeaveEventReceived(response);
                     break;
 
                 case "READY_EVENT":
                     ProcessReadyEventReceived(response);
+                    break;
+
+                case "HOST_CHANGED":
+                    ProcessHostChangeEventReceived(response);
                     break;
 
                 default:
@@ -188,6 +199,14 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         {
             Debug.Log("type unidentified. please check");
         }
+    }
+
+    private int GetCalculatedIndex(int position)
+    {
+        int ret = position;
+        if (ret >= BLUEINDEXSTART)
+            ret = (ret % BLUEINDEXSTART) + (roomContext.GetMaxUserCount() / 2);
+        return ret;
     }
 
     private void TellPainterToDraw(int position = -1)
