@@ -507,8 +507,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1105947343}
-        m_MethodName: RefreshBtnClicked
+      - m_Target: {fileID: 1105947342}
+        m_MethodName: OnRefreshButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -734,7 +734,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: 0.000003817543}
+  m_AnchoredPosition: {x: 0, y: -0.000019912413}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0, y: 1}
 --- !u!114 &851721542
@@ -850,8 +850,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1105947343}
-        m_MethodName: CreateBtnClicked
+      - m_Target: {fileID: 1105947342}
+        m_MethodName: OnCreateButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -1083,7 +1083,7 @@ Prefab:
     - target: {fileID: 224440534392181454, guid: fe81726b782f207428bdc2b1079be5b3,
         type: 2}
       propertyPath: m_AnchoredPosition.y
-      value: -0.0000000109439675
+      value: -0.0000118323
       objectReference: {fileID: 0}
     - target: {fileID: 224440534392181454, guid: fe81726b782f207428bdc2b1079be5b3,
         type: 2}
@@ -1177,7 +1177,6 @@ GameObject:
   m_Component:
   - component: {fileID: 1105947340}
   - component: {fileID: 1105947342}
-  - component: {fileID: 1105947343}
   m_Layer: 0
   m_Name: UIManager
   m_TagString: Untagged
@@ -1209,21 +1208,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c921b3934e166ea4a963226b913f5889, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  modalWindowPrefab: {fileID: 1703734620276968, guid: 9337ffa460b32d8498d979d676f30630,
-    type: 2}
-  roomItem: {fileID: 1309038347902524, guid: 6761ca010b1dea74f98a5c73e535f0f7, type: 2}
   scrollContent: {fileID: 851721540}
---- !u!114 &1105947343
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 0}
-  m_GameObject: {fileID: 1105947339}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c5930bf5227b3584e814ff03c9079969, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
 --- !u!1 &1240570149
 GameObject:
   m_ObjectHideFlags: 0
@@ -1299,7 +1284,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2137815309}
   m_HandleRect: {fileID: 2137815308}
   m_Direction: 2
-  m_Value: 0
+  m_Value: 1
   m_Size: 0.99999994
   m_NumberOfSteps: 0
   m_OnValueChanged:
@@ -1417,8 +1402,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1105947343}
-        m_MethodName: ExitBtnClicked
+      - m_Target: {fileID: 1105947342}
+        m_MethodName: OnExitButtonClicked
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
