@@ -9,11 +9,14 @@ using Google.Protobuf.Packet.Room;
 public class LobbyUIPainter : ScriptableObject {
     //Instantiated Gameobjects
     private GameObject mainCanvas;
-    private GameObject createRoomWindow;
-    private GameObject errorWindow;
     private GameObject scrollContent;
+
+    private GameObject createRoomWindow;
     private InputField roomNameInputField;
     private Dropdown roomLimitDropdown;
+
+    private GameObject errorWindow;
+    private Text errorMessageTextField;
 
     //Loaded Prefabs
     private GameObject roomItem;
@@ -27,14 +30,21 @@ public class LobbyUIPainter : ScriptableObject {
     {
         this.scrollContent = scrollContent;
         InitCreateRoomWindow(CreateRoomHandler);
+        InitErrorWindow();
     }
 
-    public void ShowCreateRoomWindow()
+    public void DisplayCreateRoomWindow()
     {
         roomNameInputField.text = "";
         roomLimitDropdown.value = 0;
         ChangeObjectBgColor(roomNameInputField.gameObject, nameFieldNormalColor);
         createRoomWindow.SetActive(true);
+    }
+
+    public void DisplayErrorWindow(string errorMessage)
+    {
+        errorMessageTextField.text = errorMessage;
+        errorWindow.SetActive(true);
     }
 
     public void DisplayRoomlist(RoomList roomList, Action<string, int, int> RoomItemClickHandler)
@@ -88,6 +98,19 @@ public class LobbyUIPainter : ScriptableObject {
         createRoomWindow.transform.SetParent(mainCanvas.transform, false);
         createRoomWindow.transform.SetAsLastSibling();
         createRoomWindow.SetActive(false);
+    }
+
+    private void InitErrorWindow()
+    {
+        GameObject window = errorWindow.transform.Find("ErrorWindow").gameObject;
+        errorMessageTextField = window.transform.Find("ErrorMessage").GetComponent<Text>();
+
+        Button closeButton = window.transform.Find("CloseBtn").GetComponent<Button>();
+        closeButton.onClick.AddListener(delegate { errorWindow.SetActive(false); });
+
+        errorWindow.transform.SetParent(mainCanvas.transform, false);
+        errorWindow.transform.SetAsLastSibling();
+        errorWindow.SetActive(false);
     }
 
     private void InitEventTriggerForRoomItem(EventTrigger trigger, GameObject obj)
