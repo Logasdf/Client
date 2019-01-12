@@ -15,6 +15,7 @@ namespace Assets.Scripts
         public static readonly int REFRESH = 2;
         public static readonly int CREATE = 3;
         public static readonly int ENTER = 4;
+        public static readonly int EMPTY_ROOMLIST = 5;
 
         public static readonly int DATA = 100;
         public static readonly int ROOMLIST = 101;

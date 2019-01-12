@@ -61,7 +61,14 @@ public class LobbyUIMgr : MonoBehaviour {
         }
         else
         {
-            Debug.Log("Type is not defined...., Check it!");
+            if(MessageType.EMPTY_ROOMLIST == (int)obj)
+            {
+                painter.DestroyRoomObjects();
+            }
+            else
+            {
+                Debug.Log("Type is not defined...., Check it!");
+            }
         }
     }
 

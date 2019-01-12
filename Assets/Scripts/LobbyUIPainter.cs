@@ -47,12 +47,17 @@ public class LobbyUIPainter : ScriptableObject {
         errorWindow.SetActive(true);
     }
 
-    public void DisplayRoomlist(RoomList roomList, Action<string, int, int> RoomItemClickHandler)
+    public void DestroyRoomObjects()
     {
         foreach (Transform child in scrollContent.transform)
         {
             Destroy(child.gameObject);
         }
+    }
+
+    public void DisplayRoomlist(RoomList roomList, Action<string, int, int> RoomItemClickHandler)
+    {
+        DestroyRoomObjects();
 
         foreach (var pair in roomList.Rooms)
         {
