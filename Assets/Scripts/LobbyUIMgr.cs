@@ -15,7 +15,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public void OnCreateButtonClicked()
     {
-        painter.ShowCreateRoomWindow();
+        painter.DisplayCreateRoomWindow();
     }
 
     public void OnRefreshButtonClicked()
@@ -40,6 +40,11 @@ public class LobbyUIMgr : MonoBehaviour {
             {
                 case "ASSIGN_USERNAME":
                     roomContext.SetUsername(data.DataMap["userName"]);
+                    break;
+
+                case "REJECT_CREATE_ROOM":
+                case "REJECT_ENTER_ROOM":
+                    painter.DisplayErrorWindow(data.DataMap["errorMessage"]);
                     break;
             }
         }

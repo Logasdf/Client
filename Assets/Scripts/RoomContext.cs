@@ -59,9 +59,6 @@ public class RoomContext {
         Client user = GetClient(prev);
         AddUserToTeam(user, next);
         DeleteUserFromTeam(prev);
-
-        if (prev == myPosition)
-           myPosition = next;
     }
 
     public void AddUserToTeam(Client user, int position)
@@ -81,9 +78,17 @@ public class RoomContext {
             blueTeamPlayers.RemoveAt(position % BLUEINDEXSTART);
         currentUserCount--;
 
-        if(((myPosition < BLUEINDEXSTART && position < BLUEINDEXSTART) || 
-            (myPosition >= BLUEINDEXSTART && position >= BLUEINDEXSTART)) && myPosition > position)
-            myPosition = SeekMyPosition();
+        if((myPosition < BLUEINDEXSTART && position < BLUEINDEXSTART) || (myPosition >= BLUEINDEXSTART && position >= BLUEINDEXSTART))
+        {
+            if(myPosition > position)
+            {
+                myPosition--;
+            }
+            else if(myPosition == position)
+            {
+                myPosition = SeekMyPosition();
+            }
+        }
     }
 
     public static RoomContext GetInstance() {
