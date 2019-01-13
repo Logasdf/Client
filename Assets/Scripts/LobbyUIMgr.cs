@@ -30,7 +30,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
     private void Awake()
     {
-        Debug.Log(this.ToString() + " Awake()");
+       // Debug.Log(this.ToString() + " Awake()");
         
     }
 
@@ -48,7 +48,7 @@ public class LobbyUIMgr : MonoBehaviour {
         {
             Data data = (Data)obj;
             string contentType = data.DataMap["contentType"];
-            Debug.Log(contentType);
+            //Debug.Log(contentType);
             switch(contentType)
             {
                 case "ASSIGN_USERNAME":
@@ -66,8 +66,6 @@ public class LobbyUIMgr : MonoBehaviour {
             RoomInfo room = (RoomInfo)obj;
             roomContext.InitRoomContext(room);
             SceneManager.LoadScene("WaitingRoom");
-            //roomContext.EnterRoomAsHost(roomName, int.Parse(selectedVal)); //test
-            //SceneManager.LoadScene("WaitingRoom");
         }
         else
         {

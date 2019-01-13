@@ -22,7 +22,7 @@ GameObject:
   m_Layer: 0
   m_Name: FirePos
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -40,6 +40,7 @@ GameObject:
   - component: {fileID: 114392366835250896}
   - component: {fileID: 114914032860705406}
   - component: {fileID: 54676506877695180}
+  - component: {fileID: 114231783077675746}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -54,7 +55,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1830139302819146}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.3, y: 0.2, z: 0.5}
+  m_LocalPosition: {x: 0.3, y: 0.2, z: 0.7}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4608710922134936}
@@ -141,8 +142,19 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1, y: 1, z: 1}
+  m_Size: {x: 1.05, y: 1.05, z: 1.05}
   m_Center: {x: 0, y: 0, z: 0}
+--- !u!114 &114231783077675746
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1910822380424382}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 37c0e25667af2b74cacfa21fd297b27f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114392366835250896
 MonoBehaviour:
   m_ObjectHideFlags: 1

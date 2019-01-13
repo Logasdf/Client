@@ -18,20 +18,21 @@ public class FireCtrl : MonoBehaviour {
 	// Update is called once per frame
 	void Update () {
         accumTime += Time.deltaTime;
-        if (accumTime >= clickInterval && Input.GetMouseButton(0))
+        if (accumTime >= clickInterval)
         {
             accumTime = 0f;
             FireBullet();
         }
-
-        //if (Input.GetMouseButtonDown(0))
+        //if (accumTime >= clickInterval && Input.GetMouseButton(0))
         //{
+        //    accumTime = 0f;
         //    FireBullet();
         //}
     }
 
     void FireBullet()
     {
+        GameManager.instance.SendFireBulletEvent(gameObject.name);
         Instantiate(bullet, firePos.position, firePos.rotation);
     }
 }

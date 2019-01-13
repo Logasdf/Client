@@ -27,7 +27,7 @@ public class ServerConnection : MonoBehaviour {
             return;
 
         await nStream.WriteAsync(msg, 0, size);
-        Debug.Log("Send Completed, size : " + size);
+        //Debug.Log("Send Completed, size : " + size);
     }
     
     private const string ADDR = "127.0.0.1";
@@ -86,7 +86,7 @@ public class ServerConnection : MonoBehaviour {
         while(!isEnd)
         {
             int readBytes = await nStream.ReadAsync(buffer, 0, BUF_SIZE);
-            Debug.Log(string.Format("Read Bytes From Server: {0}", readBytes));
+            //Debug.Log(string.Format("Read Bytes From Server: {0}", readBytes));
             receiveCallback(buffer, readBytes);
             Array.Clear(buffer, 0, BUF_SIZE);
         }
