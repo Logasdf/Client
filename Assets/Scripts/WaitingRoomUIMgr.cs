@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
+using Assets.Scripts;
 using DrawType = WaitingRoomUIPainter.DrawType;
 using Google.Protobuf.Packet.Room;
 using MapField = Google.Protobuf.Collections.MapField<string, string>;
@@ -17,6 +18,13 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     public void OnStartButtonClicked()
     {
+        Tuple<string, string>[] keyValPairs =
+        {
+            MakeKeyValuePair("contentType", "START_GAME"),
+            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString())
+        };
+        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        packetManager.PackMessage(protoObj: request);
         Debug.Log("시작");
     }
 
@@ -165,7 +173,16 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void PopMessage(object obj, Type type)
     {
-        if(type.Name == "Data")
+        if(type.Name == "Int32")
+        {
+            int messageType = (int)obj;
+            if(messageType == MessageType.START_GAME)
+            {
+                Debug.Log("GAME START!!");
+                SceneManager.LoadScene("InGame");
+            }
+        }
+        else if(type.Name == "Data")
         {
             MapField response = ((Data)obj).DataMap;
             string contentType = response["contentType"];

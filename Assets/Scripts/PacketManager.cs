@@ -14,6 +14,7 @@ public class PacketManager : MonoBehaviour {
 
     private const int BUF_SIZE = 2048;
     private static PacketManager instance;
+    public PacketManager Instance { get { return instance; } }
     private ServerConnection connection;
     private CodedOutputStream cos;
     private byte[] sendBuffer;
@@ -28,7 +29,7 @@ public class PacketManager : MonoBehaviour {
 
     public void PackMessage(int type = -1, IMessage protoObj = null)
     {
-        Debug.Log("PackMessage Callback Method");
+        //Debug.Log("PackMessage Callback Method");
         ClearBuffer();
         cos = new CodedOutputStream(sendBuffer);
 
@@ -46,7 +47,7 @@ public class PacketManager : MonoBehaviour {
 
     private void SerializeMessageBody(CodedOutputStream cos, IMessage protoObj)
     {
-        Debug.Log("Serialize Message Body!!");
+        //Debug.Log("Serialize Message Body!!");
 
         int type = MessageType.typeTable[protoObj.GetType()];
         int byteLength = protoObj.CalculateSize();
@@ -94,14 +95,14 @@ public class PacketManager : MonoBehaviour {
     {   
         //메시지가 수신되었을 때 실행되는 콜백함수 
         //수정1. 프로토콜버퍼에서 전송을 할 때 덩어리의 전송을 보장한다는 가정을 했을 때
-        Debug.Log("UnpackMessage Callback Method");
+       // Debug.Log("UnpackMessage Callback Method");
 
         CodedInputStream cis = new CodedInputStream(buffer, 0, 8);
         //int type = BitConverter.ToInt32(buffer, 0);
         //int length = BitConverter.ToInt32(buffer, 4);
         int type = (int)cis.ReadFixed32();
         int length = (int)cis.ReadFixed32();
-        Debug.Log(type);
+        //Debug.Log(type);
         object body = null;
         bool hasMore = readBytes > 8 + length ? true : false;
 
@@ -118,7 +119,7 @@ public class PacketManager : MonoBehaviour {
             }
             catch (KeyNotFoundException knfe)
             {
-                Debug.Log(knfe.Message);
+                Debug.Log(string.Format("{0}/{1}/{2}", knfe.Message, type, readBytes));
                 return;
             }
         }
@@ -135,7 +136,7 @@ public class PacketManager : MonoBehaviour {
 
     private object DeserializeMessageBody(byte[] buffer, int start, int length, Type type)
     {
-        Debug.Log("Deserialize Message Body Start!");
+        //Debug.Log("Deserialize Message Body Start!");
         // Type 객체에 맞게 Instance 생성해주는 함수.
         // 예를 들어 Type 객체가 RoomList의 Type일 경우, RoomList객체가 생성되는 것.
         // 아래 코드에서는 object로 반환받은 이유는 동적으로 Type casting할 방법이 없어서임.

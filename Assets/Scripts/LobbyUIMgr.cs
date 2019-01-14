@@ -35,8 +35,8 @@ public class LobbyUIMgr : MonoBehaviour {
         {
             Data data = (Data)obj;
             string contentType = data.DataMap["contentType"];
-            Debug.Log(contentType);
-            switch (contentType)
+
+            switch(contentType)
             {
                 case "ASSIGN_USERNAME":
                     roomContext.SetUsername(data.DataMap["userName"]);
