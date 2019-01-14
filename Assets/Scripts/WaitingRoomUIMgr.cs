@@ -18,60 +18,73 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     public void OnStartButtonClicked()
     {
-        Tuple<string, string>[] keyValPairs =
+        Data request;
+        lock(Locks.lockForRoomContext)
         {
-            MakeKeyValuePair("contentType", "START_GAME"),
-            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString())
-        };
-        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+            Tuple<string, string>[] keyValPairs =
+            {
+                MakeKeyValuePair("contentType", "START_GAME"),
+                MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString())
+            };
+            request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        }
         packetManager.PackMessage(protoObj: request);
         Debug.Log("시작");
     }
 
     public void OnReadyButtonClicked()
     {
-        Tuple<string, string>[] keyValPairs =
+        Data request;
+        lock (Locks.lockForRoomContext)
         {
-            MakeKeyValuePair("contentType", "READY_EVENT"),
-            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-            MakeKeyValuePair("position", roomContext.GetMyPosition().ToString()),
-            MakeKeyValuePair("toReady", !roomContext.GetClient(roomContext.GetMyPosition()).Ready ? "true" : "false")
-        };
-        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
-
+            Tuple<string, string>[] keyValPairs =
+            {
+                MakeKeyValuePair("contentType", "READY_EVENT"),
+                MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+                MakeKeyValuePair("position", roomContext.GetMyPosition().ToString()),
+                MakeKeyValuePair("toReady", !roomContext.GetClient(roomContext.GetMyPosition()).Ready ? "true" : "false")
+            };
+            request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        }
         packetManager.PackMessage(protoObj: request);
     }
 
     public void OnLeaveButtonClicked()
     {
-        if (roomContext.IsReady())
-            return;
-       
-        Tuple<string, string>[] keyValPairs =
+        Data request;
+        lock (Locks.lockForRoomContext)
         {
-           MakeKeyValuePair("contentType", "LEAVE_GAMEROOM"),
-           MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-           MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
-        };
-        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
-        packetManager.PackMessage(protoObj : request);
+            if (roomContext.IsReady())
+                return;
 
+            Tuple<string, string>[] keyValPairs =
+            {
+               MakeKeyValuePair("contentType", "LEAVE_GAMEROOM"),
+               MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+               MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
+            };
+            request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        }
+        packetManager.PackMessage(protoObj : request);
         SceneManager.LoadScene("GameLobby");
     }
 
     public void OnTeamChangeButtonClicked()
     {
-        if (roomContext.IsReady())
-            return;
-
-        Tuple<string, string>[] keyValPairs =
+        Data request;
+        lock (Locks.lockForRoomContext)
         {
-            MakeKeyValuePair("contentType", "TEAM_CHANGE"),
-            MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-            MakeKeyValuePair("prev_position", roomContext.GetMyPosition().ToString())
-        };
+            if (roomContext.IsReady())
+                return;
 
-        Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+            Tuple<string, string>[] keyValPairs =
+            {
+                MakeKeyValuePair("contentType", "TEAM_CHANGE"),
+                MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
+                MakeKeyValuePair("prev_position", roomContext.GetMyPosition().ToString())
+            };
+            request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+        }
         packetManager.PackMessage(protoObj: request);
     }
 
@@ -108,7 +121,10 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void ProcessUserEnterEventReceived(Client newClient)
     {
-        roomContext.AddUserToTeam(newClient, newClient.Position);
+        lock(Locks.lockForRoomContext)
+        {
+            roomContext.AddUserToTeam(newClient, newClient.Position);
+        }
         TellPainterToDraw(newClient.Position);
     }
 
@@ -117,21 +133,30 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         int prevPos = int.Parse(response["prev_position"]);
         int nextPos = int.Parse(response["next_position"]);
 
-        roomContext.ChangeTeam(prevPos, nextPos);
+        lock (Locks.lockForRoomContext)
+        {
+            roomContext.ChangeTeam(prevPos, nextPos);
+        }
         painter.Draw(roomContext, DrawType.BOTH);
     }
 
     private void ProcessReadyEventReceived(MapField response) //test private
     {
         int position = int.Parse(response["position"]);
+        lock (Locks.lockForRoomContext)
+        {
+            roomContext.ReverseReadyState(position);
+        }
         painter.ChangeReadyStateColor(GetCalculatedIndex(position), bool.Parse(response["toReady"]));
-        roomContext.ReverseReadyState(position);
     }
 
     private void ProcessLeaveEventReceived(MapField response)
     {
         int position = int.Parse(response["position"]);
-        roomContext.DeleteUserFromTeam(position);
+        lock (Locks.lockForRoomContext)
+        {
+            roomContext.DeleteUserFromTeam(position);
+        }
         TellPainterToDraw(position);
     }
 
@@ -139,10 +164,17 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     {
         int newHostPos = int.Parse(response["newHost"]);
         //방장을 저장하는게 없네 현재... 정보는 클라이언트에서 가지고있어서 간단한 문제라 이건 나중에 의논하기로..
-        if (newHostPos == roomContext.GetMyPosition())
+        bool isReady;
+        bool isHost;
+        lock(Locks.lockForRoomContext)
+        {
+            isReady = roomContext.IsReady();
+            isHost = (newHostPos == roomContext.GetMyPosition());
+        }
+        if (isHost)
         { //내가 방장이 된 경우
             painter.DisplayAppropriateButton(true);
-            if(roomContext.IsReady())
+            if(isReady)
             { //레디상태라면 레디 풀어야함
                 OnReadyButtonClicked();
             }

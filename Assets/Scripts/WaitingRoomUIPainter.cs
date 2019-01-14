@@ -54,21 +54,21 @@ public class WaitingRoomUIPainter : ScriptableObject {
 
     public void Draw(RoomContext rContext, DrawType drawType)
     {   //텍스트랑 색상그리는거를 나눠야 더 좋을 것 같은데.....
-        int maxCount = rContext.GetMaxUserCount()/2;
-        int redTeamIdx = rContext.GetRedTeamUserCount();
-        int blueTeamIdx = rContext.GetBlueTeamUserCount();
-        switch(drawType)
+        lock(Locks.lockForRoomContext)
         {
-            case DrawType.REDONLY :
-                DrawRedTeam(rContext);
-                break;
-            case DrawType.BLUEONLY:
-                DrawBlueTeam(rContext);
-                break;
-            case DrawType.BOTH:
-                DrawRedTeam(rContext);
-                DrawBlueTeam(rContext);
-                break;
+            switch (drawType)
+            {
+                case DrawType.REDONLY:
+                    DrawRedTeam(rContext);
+                    break;
+                case DrawType.BLUEONLY:
+                    DrawBlueTeam(rContext);
+                    break;
+                case DrawType.BOTH:
+                    DrawRedTeam(rContext);
+                    DrawBlueTeam(rContext);
+                    break;
+            }
         }
     }
 
