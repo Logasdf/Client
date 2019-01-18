@@ -30,7 +30,7 @@ public class LobbyUIMgr : MonoBehaviour {
 
     public void PopMessage(object obj, Type type)
     {
-        Debug.Log("메시지 타입이름 : " + type.Name); //test
+        Debug.Log("메시지 타입이름 : " + type.Name);
         if (type.Name == "Data")
         {
             Data data = (Data)obj;
@@ -61,7 +61,7 @@ public class LobbyUIMgr : MonoBehaviour {
         }
         else
         {
-            if(MessageType.EMPTY_ROOMLIST == (int)obj)
+            if(MessageType.ROOMLIST == (int)obj)
             {
                 painter.DestroyRoomObjects();
             }

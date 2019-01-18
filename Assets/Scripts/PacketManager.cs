@@ -11,14 +11,12 @@ public class PacketManager : MonoBehaviour {
 
     public delegate void HandleMessage(object obj, Type type);
 
-
     private const int BUF_SIZE = 2048;
     private static PacketManager instance;
     public PacketManager Instance { get { return instance; } }
     private ServerConnection connection;
     private CodedOutputStream cos;
     private byte[] sendBuffer;
-    // UI Manager Component(들)에게 Data를 넘기기위한 Delegate
     private HandleMessage handleMessage;
 
 
@@ -47,8 +45,6 @@ public class PacketManager : MonoBehaviour {
 
     private void SerializeMessageBody(CodedOutputStream cos, IMessage protoObj)
     {
-        //Debug.Log("Serialize Message Body!!");
-
         int type = MessageType.typeTable[protoObj.GetType()];
         int byteLength = protoObj.CalculateSize();
 
@@ -56,15 +52,9 @@ public class PacketManager : MonoBehaviour {
         cos.WriteFixed32((uint)byteLength);
         protoObj.WriteTo(cos);
     }
-  
-    private void Awake()
-    {
-        //Debug.Log(this.ToString() + " Awake()");
-    }
 
     private void Start()
     {
-        //Debug.Log("This is a PacketManager's Start()");
         if (instance != null)
         {
             Destroy(gameObject);
@@ -74,8 +64,6 @@ public class PacketManager : MonoBehaviour {
         instance = this;
         DontDestroyOnLoad(gameObject);
         AttachToServerAsDelegate();
-        //********* DICTIONARY INITIALIZE NEEDED *********
-
         sendBuffer = new byte[BUF_SIZE];
     }
 
@@ -86,57 +74,40 @@ public class PacketManager : MonoBehaviour {
 
     private void AttachToServerAsDelegate()
     {
-        //콜백함수 등록
         connection = GameObject.Find("Connection").GetComponent<ServerConnection>();
-        connection.SetReceiveCallBack(UnpackMessage);
+        connection.SetUnpackFunctions(UnpackHeader, UnpackMessage);
     }
 
-    private void UnpackMessage(byte[] buffer, int readBytes)
+    private bool UnpackHeader(byte[] buffer, ref int type, ref int length)
+    {
+        CodedInputStream cis = new CodedInputStream(buffer);
+        type = (int)cis.ReadFixed32();
+        length = (int)cis.ReadFixed32();
+
+        if (length != 0)
+            return true;
+
+        handleMessage(type, typeof(int));
+        return false;
+    }
+
+    private void UnpackMessage(byte[] buffer, int type, int length)
     {   
-        //메시지가 수신되었을 때 실행되는 콜백함수 
-        //수정1. 프로토콜버퍼에서 전송을 할 때 덩어리의 전송을 보장한다는 가정을 했을 때
-       // Debug.Log("UnpackMessage Callback Method");
-
-        CodedInputStream cis = new CodedInputStream(buffer, 0, 8);
-        //int type = BitConverter.ToInt32(buffer, 0);
-        //int length = BitConverter.ToInt32(buffer, 4);
-        int type = (int)cis.ReadFixed32();
-        int length = (int)cis.ReadFixed32();
-        //Debug.Log(type);
         object body = null;
-        bool hasMore = readBytes > 8 + length ? true : false;
-
-        if(length == 0)
+        try
         {
-            handleMessage(type, typeof(int));
+            body = DeserializeMessageBody(buffer, 8, length, MessageType.invTypeTable[type]);
+            handleMessage(body, MessageType.invTypeTable[type]);
         }
-        else
+        catch (KeyNotFoundException knfe)
         {
-            try
-            {
-                body = DeserializeMessageBody(buffer, 8, length, MessageType.invTypeTable[type]);
-                handleMessage(body, MessageType.invTypeTable[type]);
-            }
-            catch (KeyNotFoundException knfe)
-            {
-                Debug.Log(string.Format("{0}/{1}/{2}", knfe.Message, type, readBytes));
-                return;
-            }
+            Debug.Log(string.Format("{0}/{1}", knfe.Message, type));
+            return;
         }
-        //JS TEST
-        if(hasMore)
-        {
-            int size = readBytes - (8 + length);
-            byte[] tempArr = new byte[size];
-            Array.Copy(buffer, 8 + length, tempArr, 0, size);
-            UnpackMessage(tempArr, size);
-        }
-            
     }
 
     private object DeserializeMessageBody(byte[] buffer, int start, int length, Type type)
     {
-        //Debug.Log("Deserialize Message Body Start!");
         // Type 객체에 맞게 Instance 생성해주는 함수.
         // 예를 들어 Type 객체가 RoomList의 Type일 경우, RoomList객체가 생성되는 것.
         // 아래 코드에서는 object로 반환받은 이유는 동적으로 Type casting할 방법이 없어서임.
