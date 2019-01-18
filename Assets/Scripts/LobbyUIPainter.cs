@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.EventSystems;
@@ -82,21 +80,21 @@ public class LobbyUIPainter : ScriptableObject {
 
     private void OnEnable()
     {
-        mainCanvas = GameObject.Find("Canvas");
-        createRoomWindow = Instantiate((GameObject)Resources.Load("Prefabs/CreateRoomPanel"));
-        errorWindow = Instantiate((GameObject)Resources.Load("Prefabs/ErrorMessagePanel"));
-        roomItem = (GameObject)Resources.Load("Prefabs/RoomItem");
+        mainCanvas = GameObject.Find(ElementStrings.CANVAS);
+        createRoomWindow = Instantiate((GameObject)Resources.Load(PathStrings.CREATE_ROOM_PANEL));
+        errorWindow = Instantiate((GameObject)Resources.Load(PathStrings.ERROR_MESSAGE_PANEL));
+        roomItem = (GameObject)Resources.Load(PathStrings.ROOMITEM);
     }
 
     private void InitCreateRoomWindow(Action<InputField, Dropdown> CreateRoomHandler)
     {
         GameObject dialogWindow = createRoomWindow.transform.GetChild(0).gameObject;
 
-        roomNameInputField = dialogWindow.transform.Find("NameInputField").GetComponent<InputField>();
-        roomLimitDropdown = dialogWindow.transform.Find("LimitDropdown").GetComponent<Dropdown>();
+        roomNameInputField = dialogWindow.transform.Find(ElementStrings.ROOMNAME_INPUTFIELD).GetComponent<InputField>();
+        roomLimitDropdown = dialogWindow.transform.Find(ElementStrings.ROOMLIMIT_DROPDOWN).GetComponent<Dropdown>();
 
-        Button submitBtn = dialogWindow.transform.Find("SubmitBtn").gameObject.GetComponent<Button>();
-        Button cancelBtn = dialogWindow.transform.Find("CancelBtn").gameObject.GetComponent<Button>();
+        Button submitBtn = dialogWindow.transform.Find(ElementStrings.SUBMIT_BTN).gameObject.GetComponent<Button>();
+        Button cancelBtn = dialogWindow.transform.Find(ElementStrings.CANCEL_BTN).gameObject.GetComponent<Button>();
         submitBtn.onClick.AddListener(delegate { CreateRoomHandler(roomNameInputField, roomLimitDropdown); });
         cancelBtn.onClick.AddListener(delegate { createRoomWindow.SetActive(false); });
 
@@ -107,10 +105,10 @@ public class LobbyUIPainter : ScriptableObject {
 
     private void InitErrorWindow()
     {
-        GameObject window = errorWindow.transform.Find("ErrorWindow").gameObject;
-        errorMessageTextField = window.transform.Find("ErrorMessage").GetComponent<Text>();
+        GameObject window = errorWindow.transform.Find(ElementStrings.ERRORMESSAGE_WINDOW).gameObject;
+        errorMessageTextField = window.transform.Find(ElementStrings.ERRORMESSAGE_TEXTFIELD).GetComponent<Text>();
 
-        Button closeButton = window.transform.Find("CloseBtn").GetComponent<Button>();
+        Button closeButton = window.transform.Find(ElementStrings.CLOSE_BTN).GetComponent<Button>();
         closeButton.onClick.AddListener(delegate { errorWindow.SetActive(false); });
 
         errorWindow.transform.SetParent(mainCanvas.transform, false);
