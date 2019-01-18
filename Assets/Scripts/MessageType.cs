@@ -27,6 +27,7 @@ namespace Assets.Scripts
         public static readonly int PLAY_STATE = 104;
         public static readonly int TRANSFORM = 105;
         public static readonly int VECTOR_3 = 106;
+        public static readonly int WORLD_STATE = 107;
 
         public static readonly Dictionary<Type, int> typeTable = new Dictionary<Type, int>()
         {
@@ -36,7 +37,8 @@ namespace Assets.Scripts
             { typeof(Client), CLIENT },
             { typeof(PlayState), PLAY_STATE },
             { typeof(TransformProto), TRANSFORM },
-            { typeof(Vector3Proto), VECTOR_3}
+            { typeof(Vector3Proto), VECTOR_3},
+            { typeof(WorldState), WORLD_STATE}
         };
 
         public static readonly Dictionary<int, Type> invTypeTable = new Dictionary<int, Type>()
@@ -47,7 +49,8 @@ namespace Assets.Scripts
             { CLIENT, typeof(Client) },
             { PLAY_STATE, typeof(PlayState) },
             { TRANSFORM, typeof(TransformProto) },
-            { VECTOR_3, typeof(Vector3Proto) }
+            { VECTOR_3, typeof(Vector3Proto) },
+            { WORLD_STATE, typeof(WorldState) }
         };
     }
 }

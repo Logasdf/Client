@@ -26,11 +26,24 @@ public class ServerConnection : MonoBehaviour {
         if (nStream == null)
             return;
 
-        await nStream.WriteAsync(msg, 0, size);
+        try
+        {
+            await nStream.WriteAsync(msg, 0, size);
+        }
+        catch(InvalidOperationException ioe)
+        {
+            Debug.Log(ioe.Message);
+        }
+        catch(Exception e)
+        {
+            Debug.Log(e.Message);
+        }
         //Debug.Log("Send Completed, size : " + size);
     }
-    
+
     private const string ADDR = "127.0.0.1";
+    //private const string ADDR = "192.168.219.107";
+    //private const string ADDR = "10.10.10.10";
     private const int PORT = 9910;
     private TcpClient socket;
     private NetworkStream nStream;

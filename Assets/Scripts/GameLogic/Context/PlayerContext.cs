@@ -21,6 +21,8 @@ namespace Assets.Scripts.GameLogic.Context
         public Client Client { get { return client; } }
         private PlayState state;
         public PlayState State { get { return state; } }
+        private WorldState _worldState;
+        public WorldState WorldState { get { return _worldState; } }
         private GameObject player;
         public GameObject Player { get { return player; } }
         
@@ -28,26 +30,49 @@ namespace Assets.Scripts.GameLogic.Context
         public void Init(int roomId, Client client, GameObject player)
         {
             this.client = client;
-            state = new PlayState();
-            state.AnimState = (int)Animation.IDLE;
-            state.KillCount = state.DeathCount = 0;
-            state.Health = 100;
-            state.ClntName = client.Name;
-            state.RoomId = roomId;
             this.player = player;
-            state.Transform = new TransformProto
+
+            _worldState = new WorldState
             {
-                Position = new Vector3Proto(),
-                Rotation = new Vector3Proto(),
-                Scale = new Vector3Proto()
+                RoomId = roomId,
+                ClntName = client.Name,
+                Transform = new TransformProto
+                {
+                    Position = new Vector3Proto(),
+                    Rotation = new Vector3Proto(),
+                    Scale = new Vector3Proto()
+                },
+                Fired = false
             };
+
+            //state = new PlayState();
+            //state.AnimState = (int)Animation.IDLE;
+            //state.KillCount = state.DeathCount = 0;
+            //state.Health = 100;
+            //state.ClntName = client.Name;
+            //state.RoomId = roomId;
+            //state.Transform = new TransformProto
+            //{
+            //    Position = new Vector3Proto(),
+            //    Rotation = new Vector3Proto(),
+            //    Scale = new Vector3Proto()
+            //};
         }
 
-        public void CopyToTransFormProto()
+        public void CopyToTransformProto()
         {
-            SetVector3(state.Transform.Position, player.transform.localPosition);
-            SetVector3(state.Transform.Rotation, player.transform.localRotation.eulerAngles);
-            SetVector3(state.Transform.Scale, player.transform.localScale);
+            SetVector3(_worldState.Transform.Position, player.transform.localPosition);
+            SetVector3(_worldState.Transform.Rotation, player.transform.localRotation.eulerAngles);
+            SetVector3(_worldState.Transform.Scale, player.transform.localScale);
+
+            //SetVector3(state.Transform.Position, player.transform.localPosition);
+            //SetVector3(state.Transform.Rotation, player.transform.localRotation.eulerAngles);
+            //SetVector3(state.Transform.Scale, player.transform.localScale);
+        }
+
+        public void SetFireFlag(bool isFired)
+        {
+            _worldState.Fired = isFired;
         }
 
         public void UpdateTransform(TransformProto tfp)
