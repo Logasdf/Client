@@ -32,8 +32,20 @@ public class ServerConnection : MonoBehaviour {
     {
         if (nStream == null)
             return;
-
-        await nStream.WriteAsync(msg, 0, size);
+      
+        try
+        {
+            await nStream.WriteAsync(msg, 0, size);
+        }
+        catch(InvalidOperationException ioe)
+        {
+            Debug.Log(ioe.Message);
+        }
+        catch(Exception e)
+        {
+            Debug.Log(e.Message);
+        }
+        //Debug.Log("Send Completed, size : " + size);
     }
    
     private void Start()

@@ -10,13 +10,19 @@ public class PlayerMoveCtrl : MonoBehaviour {
     private float rot = 0f;
 
     public float moveSpeed = 10.0f;
-    public float rotSpeed = 80.0f;
+    public float rotSpeed = 120.0f;
 
     private Transform tr;
     private Rigidbody rb;
     private PlayerContext myContext;
     private GameManager gm;
     private PacketManager pm;
+
+    private int frameCount = 0;
+    private int sendFrequency = 1;
+
+    private float accumSendTime = 0f;
+    //private float sendFrequency = 30.0f;
 
     // Use this for initialization
     void Start () {
@@ -28,12 +34,6 @@ public class PlayerMoveCtrl : MonoBehaviour {
     }
 
     private void FixedUpdate()
-    {
-
-    }
-
-    // Update is called once per frame
-    void Update ()
     {
         hori = Input.GetAxis("Horizontal");
         verti = Input.GetAxis("Vertical");
@@ -47,26 +47,35 @@ public class PlayerMoveCtrl : MonoBehaviour {
         rb.MovePosition(newPosition);
         rb.MoveRotation(Quaternion.Euler(newRotation));
 
+        Debug.Log(string.Format("Frame #{0} Broadcast", Time.frameCount));
         BroadcastMyTransform();
-    }
 
-    //float accum = 0f;
-    //float interval = 0.5f;
-    private void LateUpdate()
-    {
-        //BroadcastMyTransform();
-        //accum += Time.deltaTime;
-        //if(accum >= interval)
+        //if ((Time.frameCount - frameCount) >= sendFrequency)
         //{
-        //    accum = 0f;
+        //    Debug.Log(string.Format("{0} / {1}", frameCount, Time.frameCount));
+        //    frameCount = Time.frameCount;
         //    BroadcastMyTransform();
         //}
+
+        //accumSendTime += Time.deltaTime;
+        //if (accumSendTime >= 0.1f)
+        //{
+        //    accumSendTime = 0f;
+        //    Debug.Log(string.Format("{0} / {1} Send Position!", accumSendTime, Time.deltaTime));
+        //    BroadcastMyTransform();
+        //}
+    }
+
+    // Update is called once per frame
+    void Update ()
+    {
+
     }
 
     private void BroadcastMyTransform()
     {
         myContext.State.AnimState = (int)PlayerContext.Animation.MOVE;
-        myContext.CopyToTransFormProto();
+        myContext.CopyToTransformProto();
         gm.PacketManager.PackMessage(protoObj: myContext.State);
     }
 }

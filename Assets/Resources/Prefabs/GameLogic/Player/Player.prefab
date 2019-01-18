@@ -37,10 +37,9 @@ GameObject:
   - component: {fileID: 33555762603099598}
   - component: {fileID: 23241854000560584}
   - component: {fileID: 65127665943094280}
-  - component: {fileID: 114392366835250896}
-  - component: {fileID: 114914032860705406}
   - component: {fileID: 54676506877695180}
   - component: {fileID: 114231783077675746}
+  - component: {fileID: 114794858300044498}
   m_Layer: 0
   m_Name: Player
   m_TagString: Player
@@ -155,7 +154,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 37c0e25667af2b74cacfa21fd297b27f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
---- !u!114 &114392366835250896
+--- !u!114 &114794858300044498
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -163,22 +162,11 @@ MonoBehaviour:
   m_GameObject: {fileID: 1910822380424382}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 96f03c426d22e6b4893057e2caeeab88, type: 3}
+  m_Script: {fileID: 11500000, guid: 467833a6cdde9bf40b26a25f3f7647ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   moveSpeed: 45
   rotSpeed: 120
---- !u!114 &114914032860705406
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1910822380424382}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 0e148746beba30548ab50514d9ef4de8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
   bullet: {fileID: 1613793094736518, guid: fae5654a261e35a4a90a3410177437c2, type: 2}
   firePos: {fileID: 4482123794807532}
   clickInterval: 0.1

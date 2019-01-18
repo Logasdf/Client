@@ -133,21 +133,21 @@ public class GameManager : MonoBehaviour {
 
     private void SetUserInfoPool()
     {
-        // red team
-        for(int i = 0; i < redPlayers.Length; ++i)
-        {
-            userInfo[i, 0].text = redPlayers[i].Client.Name;
-            userInfo[i, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
-                redPlayers[i].State.KillCount, redPlayers[i].State.DeathCount);
-        }
+        //// red team
+        //for(int i = 0; i < redPlayers.Length; ++i)
+        //{
+        //    userInfo[i, 0].text = redPlayers[i].Client.Name;
+        //    userInfo[i, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
+        //        redPlayers[i].State.KillCount, redPlayers[i].State.DeathCount);
+        //}
 
-        // blue team
-        for(int i = 0; i < bluePlayers.Length; ++i)
-        {
-            userInfo[i + BLUEINDEXSTART, 0].text = bluePlayers[i].Client.Name;
-            userInfo[i + BLUEINDEXSTART, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
-                bluePlayers[i].State.KillCount, bluePlayers[i].State.DeathCount);
-        }
+        //// blue team
+        //for(int i = 0; i < bluePlayers.Length; ++i)
+        //{
+        //    userInfo[i + BLUEINDEXSTART, 0].text = bluePlayers[i].Client.Name;
+        //    userInfo[i + BLUEINDEXSTART, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
+        //        bluePlayers[i].State.KillCount, bluePlayers[i].State.DeathCount);
+        //}
     }
 
     private void CreateUserInfoPool(int size=16)
@@ -189,6 +189,20 @@ public class GameManager : MonoBehaviour {
         blueTeamInfo.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
     }
 
+    private void UpdateWorldState(WorldState worldState)
+    {
+        if(worldState.ClntName != myContext.Client.Name)
+        {
+            playerMap[worldState.ClntName].UpdateTransform(worldState.Transform);
+            if(worldState.Fired)
+            {
+                GameObject firer = playerMap[worldState.ClntName].Player;
+                Transform firePos = firer.transform.GetChild(0);
+                Instantiate(pfBullet, firePos.position, firePos.rotation);
+            }
+        }
+    }
+
     private void UpdatePlayerState(PlayState playState)
     {
         if (playState.ClntName != myContext.Client.Name)
@@ -211,13 +225,13 @@ public class GameManager : MonoBehaviour {
 
     private void HandleFireBulletEvent(string fromClnt)
     {
-        Debug.Log(string.Format("{0} was fired!", fromClnt));
+        //Debug.Log(string.Format("{0} was fired!", fromClnt));
         if (fromClnt == myContext.Player.name) return;
 
         GameObject firer = playerMap[fromClnt].Player;
 
         Transform firePos = firer.transform.GetChild(0);
-        Debug.Log(string.Format("FirePos Name is {0}", firePos.gameObject.name));
+        //Debug.Log(string.Format("FirePos Name is {0}", firePos.gameObject.name));
         Instantiate(pfBullet, firePos.position, firePos.rotation);
     }
 
@@ -242,26 +256,31 @@ public class GameManager : MonoBehaviour {
     {
         if (type.Name == MessageTypeStrings.DATA)
         {
-            Data response = (Data)obj;
-            string contentType = response.DataMap[MessageTypeStrings.CONTENT_TYPE];
-            switch (contentType)
-            {
-                case MessageTypeStrings.FIRE_BULLET:
-                    string fromClnt = response.DataMap[MessageTypeStrings.MESSAGEFROM];
-                    HandleFireBulletEvent(fromClnt);
-                    break;
+            //Data response = (Data)obj;
+            //string contentType = response.DataMap[MessageTypeStrings.CONTENT_TYPE];
+            //switch (contentType)
+            //{
+                //case MessageTypeStrings.FIRE_BULLET:
+                    //string fromClnt = response.DataMap[MessageTypeStrings.MESSAGEFROM];
+                   // HandleFireBulletEvent(fromClnt);
+                   // break;
                 //case "BE_SHOT":
                 //    fromClnt = response.DataMap["fromClnt"];
                 //    string toClnt = response.DataMap["toClnt"];
                 //    Debug.Log(string.Format("{0} was shot by {1}", toClnt, fromClnt));
                 //    //HandleBeShotEvent();
                 //    break;
-            }
+            //}
         }
-        if (type.Name == MessageTypeStrings.PLAYSTATE)
+        else if (type.Name == MessageTypeStrings.PLAYSTATE)
         {
             Debug.Log("Update PlayState");
             UpdatePlayerState((PlayState)obj);
+        }
+        else if (type.Name == "WorldState")
+        {
+            Debug.Log("Update WorldState");
+            UpdateWorldState((WorldState)obj);
         }
     }
 }

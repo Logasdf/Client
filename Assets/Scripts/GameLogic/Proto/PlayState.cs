@@ -32,13 +32,17 @@ namespace Google.Protobuf.State {
             "cmFuc2Zvcm0YASABKAsyFS5zdGF0ZS5UcmFuc2Zvcm1Qcm90bxIRCglhbmlt",
             "U3RhdGUYAiABKAUSDgoGaGVhbHRoGAMgASgFEhEKCWtpbGxDb3VudBgEIAEo",
             "BRISCgpkZWF0aENvdW50GAUgASgFEg4KBnJvb21JZBgGIAEoBRIQCghjbG50",
-            "TmFtZRgHIAEoCUIYqgIVR29vZ2xlLlByb3RvYnVmLlN0YXRlYgZwcm90bzM="));
+            "TmFtZRgHIAEoCSJnCgpXb3JsZFN0YXRlEg4KBnJvb21JZBgBIAEoBRIQCghj",
+            "bG50TmFtZRgCIAEoCRIoCgl0cmFuc2Zvcm0YAyABKAsyFS5zdGF0ZS5UcmFu",
+            "c2Zvcm1Qcm90bxINCgVmaXJlZBgEIAEoCEIYqgIVR29vZ2xlLlByb3RvYnVm",
+            "LlN0YXRlYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.Vector3Proto), global::Google.Protobuf.State.Vector3Proto.Parser, new[]{ "X", "Y", "Z" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.TransformProto), global::Google.Protobuf.State.TransformProto.Parser, new[]{ "Position", "Rotation", "Scale" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.PlayState), global::Google.Protobuf.State.PlayState.Parser, new[]{ "Transform", "AnimState", "Health", "KillCount", "DeathCount", "RoomId", "ClntName" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.PlayState), global::Google.Protobuf.State.PlayState.Parser, new[]{ "Transform", "AnimState", "Health", "KillCount", "DeathCount", "RoomId", "ClntName" }, null, null, null),
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.WorldState), global::Google.Protobuf.State.WorldState.Parser, new[]{ "RoomId", "ClntName", "Transform", "Fired" }, null, null, null)
           }));
     }
     #endregion
@@ -728,6 +732,225 @@ namespace Google.Protobuf.State {
           }
           case 58: {
             ClntName = input.ReadString();
+            break;
+          }
+        }
+      }
+    }
+
+  }
+
+  public sealed partial class WorldState : pb::IMessage<WorldState> {
+    private static readonly pb::MessageParser<WorldState> _parser = new pb::MessageParser<WorldState>(() => new WorldState());
+    private pb::UnknownFieldSet _unknownFields;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pb::MessageParser<WorldState> Parser { get { return _parser; } }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public static pbr::MessageDescriptor Descriptor {
+      get { return global::Google.Protobuf.State.PlayStateReflection.Descriptor.MessageTypes[3]; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    pbr::MessageDescriptor pb::IMessage.Descriptor {
+      get { return Descriptor; }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public WorldState() {
+      OnConstruction();
+    }
+
+    partial void OnConstruction();
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public WorldState(WorldState other) : this() {
+      roomId_ = other.roomId_;
+      clntName_ = other.clntName_;
+      transform_ = other.transform_ != null ? other.transform_.Clone() : null;
+      fired_ = other.fired_;
+      _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public WorldState Clone() {
+      return new WorldState(this);
+    }
+
+    /// <summary>Field number for the "roomId" field.</summary>
+    public const int RoomIdFieldNumber = 1;
+    private int roomId_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int RoomId {
+      get { return roomId_; }
+      set {
+        roomId_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "clntName" field.</summary>
+    public const int ClntNameFieldNumber = 2;
+    private string clntName_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string ClntName {
+      get { return clntName_; }
+      set {
+        clntName_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "transform" field.</summary>
+    public const int TransformFieldNumber = 3;
+    private global::Google.Protobuf.State.TransformProto transform_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public global::Google.Protobuf.State.TransformProto Transform {
+      get { return transform_; }
+      set {
+        transform_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "fired" field.</summary>
+    public const int FiredFieldNumber = 4;
+    private bool fired_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Fired {
+      get { return fired_; }
+      set {
+        fired_ = value;
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override bool Equals(object other) {
+      return Equals(other as WorldState);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public bool Equals(WorldState other) {
+      if (ReferenceEquals(other, null)) {
+        return false;
+      }
+      if (ReferenceEquals(other, this)) {
+        return true;
+      }
+      if (RoomId != other.RoomId) return false;
+      if (ClntName != other.ClntName) return false;
+      if (!object.Equals(Transform, other.Transform)) return false;
+      if (Fired != other.Fired) return false;
+      return Equals(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override int GetHashCode() {
+      int hash = 1;
+      if (RoomId != 0) hash ^= RoomId.GetHashCode();
+      if (ClntName.Length != 0) hash ^= ClntName.GetHashCode();
+      if (transform_ != null) hash ^= Transform.GetHashCode();
+      if (Fired != false) hash ^= Fired.GetHashCode();
+      if (_unknownFields != null) {
+        hash ^= _unknownFields.GetHashCode();
+      }
+      return hash;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public override string ToString() {
+      return pb::JsonFormatter.ToDiagnosticString(this);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void WriteTo(pb::CodedOutputStream output) {
+      if (RoomId != 0) {
+        output.WriteRawTag(8);
+        output.WriteInt32(RoomId);
+      }
+      if (ClntName.Length != 0) {
+        output.WriteRawTag(18);
+        output.WriteString(ClntName);
+      }
+      if (transform_ != null) {
+        output.WriteRawTag(26);
+        output.WriteMessage(Transform);
+      }
+      if (Fired != false) {
+        output.WriteRawTag(32);
+        output.WriteBool(Fired);
+      }
+      if (_unknownFields != null) {
+        _unknownFields.WriteTo(output);
+      }
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int CalculateSize() {
+      int size = 0;
+      if (RoomId != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(RoomId);
+      }
+      if (ClntName.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(ClntName);
+      }
+      if (transform_ != null) {
+        size += 1 + pb::CodedOutputStream.ComputeMessageSize(Transform);
+      }
+      if (Fired != false) {
+        size += 1 + 1;
+      }
+      if (_unknownFields != null) {
+        size += _unknownFields.CalculateSize();
+      }
+      return size;
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(WorldState other) {
+      if (other == null) {
+        return;
+      }
+      if (other.RoomId != 0) {
+        RoomId = other.RoomId;
+      }
+      if (other.ClntName.Length != 0) {
+        ClntName = other.ClntName;
+      }
+      if (other.transform_ != null) {
+        if (transform_ == null) {
+          transform_ = new global::Google.Protobuf.State.TransformProto();
+        }
+        Transform.MergeFrom(other.Transform);
+      }
+      if (other.Fired != false) {
+        Fired = other.Fired;
+      }
+      _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
+    }
+
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public void MergeFrom(pb::CodedInputStream input) {
+      uint tag;
+      while ((tag = input.ReadTag()) != 0) {
+        switch(tag) {
+          default:
+            _unknownFields = pb::UnknownFieldSet.MergeFieldFrom(_unknownFields, input);
+            break;
+          case 8: {
+            RoomId = input.ReadInt32();
+            break;
+          }
+          case 18: {
+            ClntName = input.ReadString();
+            break;
+          }
+          case 26: {
+            if (transform_ == null) {
+              transform_ = new global::Google.Protobuf.State.TransformProto();
+            }
+            input.ReadMessage(transform_);
+            break;
+          }
+          case 32: {
+            Fired = input.ReadBool();
             break;
           }
         }
