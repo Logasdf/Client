@@ -7,8 +7,8 @@ using Assets.Scripts;
 
 public class LobbyUIMgr : MonoBehaviour {
 
-    public GameObject scrollContent; 
-
+    [SerializeField]
+    private GameObject scrollContent; 
     private PacketManager packetManager;
     private LobbyUIPainter painter;
     private RoomContext roomContext;
@@ -31,33 +31,32 @@ public class LobbyUIMgr : MonoBehaviour {
     public void PopMessage(object obj, Type type)
     {
         Debug.Log("메시지 타입이름 : " + type.Name);
-        if (type.Name == "Data")
+        if (type.Name == MessageTypeStrings.DATA)
         {
             Data data = (Data)obj;
-            string contentType = data.DataMap["contentType"];
+            string contentType = data.DataMap[MessageTypeStrings.CONTENT_TYPE];
 
             switch(contentType)
             {
-                case "ASSIGN_USERNAME":
-                    roomContext.SetUsername(data.DataMap["userName"]);
+                case MessageTypeStrings.ASSIGN_USERNAME:
+                    roomContext.SetUsername(data.DataMap[MessageTypeStrings.USERNAME]);
                     break;
 
-                case "REJECT_CREATE_ROOM":
-                case "REJECT_ENTER_ROOM":
-                    painter.DisplayErrorWindow(data.DataMap["errorMessage"]);
+                case MessageTypeStrings.REJECT_CREATEROOM:
+                case MessageTypeStrings.REJECT_ENTERROOM:
+                    painter.DisplayErrorWindow(data.DataMap[MessageTypeStrings.ERRORMESSAGE]);
                     break;
             }
         }
-        else if (type.Name == "RoomList")
+        else if (type.Name == MessageTypeStrings.ROOMLIST)
         {
             painter.DisplayRoomlist((RoomList)obj, OnRoomItemClicked); 
         }
-        else if (type.Name == "RoomInfo")
+        else if (type.Name == MessageTypeStrings.ROOMINFO)
         {
-            Debug.Log("Create/Enter Room Success!!");
             RoomInfo room = (RoomInfo)obj;
             roomContext.InitRoomContext(room);
-            SceneManager.LoadScene("WaitingRoom");
+            SceneManager.LoadScene(PathStrings.SCENE_WAITINGROOM);
         }
         else
         {
@@ -74,10 +73,10 @@ public class LobbyUIMgr : MonoBehaviour {
 
     private void Start()
     {
-        packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
+        packetManager = GameObject.Find(ElementStrings.PACKETMANAGER).GetComponent<PacketManager>();
         packetManager.SetHandleMessage(PopMessage);
         roomContext = RoomContext.GetInstance();
-        painter = (LobbyUIPainter)ScriptableObject.CreateInstance("LobbyUIPainter");
+        painter = (LobbyUIPainter)ScriptableObject.CreateInstance(ElementStrings.LOBBYUIPAINTER);
         painter.Init(scrollContent, SubmitCreateRoomRequest);
     }
 
@@ -93,20 +92,19 @@ public class LobbyUIMgr : MonoBehaviour {
         string selectedVal = limitDropdown.options[limitDropdown.value].text;
 
         Data data = new Data();
-        data.DataMap["contentType"] = "CREATE_ROOM";
-        data.DataMap["roomName"] = roomName;
-        data.DataMap["limits"] = selectedVal;
-        data.DataMap["userName"] = roomContext.GetMyUsername();
+        data.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.CREATE_ROOM;
+        data.DataMap[MessageTypeStrings.ROOMNAME] = roomName;
+        data.DataMap[MessageTypeStrings.LIMIT] = selectedVal;
+        data.DataMap[MessageTypeStrings.USERNAME] = roomContext.GetMyUsername();
         packetManager.PackMessage(protoObj: data);
-        
     }
 
-    private void OnRoomItemClicked(string roomName, int currentUserCount, int userCountMax) // 방 입장
+    private void OnRoomItemClicked(string roomName, int currentUserCount, int userCountMax) 
     {
         Data data = new Data();
-        data.DataMap["contentType"] = "ENTER_ROOM";
-        data.DataMap["roomName"] = roomName;
-        data.DataMap["userName"] = roomContext.GetMyUsername();
+        data.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.ENTER_ROOM;
+        data.DataMap[MessageTypeStrings.ROOMNAME] = roomName;
+        data.DataMap[MessageTypeStrings.USERNAME] = roomContext.GetMyUsername();
         packetManager.PackMessage(protoObj: data);
     }
 }

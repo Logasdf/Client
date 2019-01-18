@@ -21,13 +21,12 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         {
             Tuple<string, string>[] keyValPairs =
             {
-                MakeKeyValuePair("contentType", "START_GAME"),
-                MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString())
+                MakeKeyValuePair(MessageTypeStrings.CONTENT_TYPE, MessageTypeStrings.START_GAME),
+                MakeKeyValuePair(MessageTypeStrings.ROOMID, roomContext.GetRoomId().ToString())
             };
             request = GetDataInstanceAfterSettingDataMap(keyValPairs);
         }
         packetManager.PackMessage(protoObj: request);
-        Debug.Log("시작");
     }
 
     public void OnReadyButtonClicked()
@@ -37,10 +36,10 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         {
             Tuple<string, string>[] keyValPairs =
             {
-                MakeKeyValuePair("contentType", "READY_EVENT"),
-                MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-                MakeKeyValuePair("position", roomContext.GetMyPosition().ToString()),
-                MakeKeyValuePair("toReady", !roomContext.GetClient(roomContext.GetMyPosition()).Ready ? "true" : "false")
+                MakeKeyValuePair(MessageTypeStrings.CONTENT_TYPE, MessageTypeStrings.READY_EVENT),
+                MakeKeyValuePair(MessageTypeStrings.ROOMID, roomContext.GetRoomId().ToString()),
+                MakeKeyValuePair(MessageTypeStrings.POSITION, roomContext.GetMyPosition().ToString()),
+                MakeKeyValuePair(MessageTypeStrings.TOREADY, !roomContext.GetClient(roomContext.GetMyPosition()).Ready ? "true" : "false")
             };
             request = GetDataInstanceAfterSettingDataMap(keyValPairs);
         }
@@ -57,14 +56,14 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
             Tuple<string, string>[] keyValPairs =
             {
-               MakeKeyValuePair("contentType", "LEAVE_GAMEROOM"),
-               MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-               MakeKeyValuePair("position", roomContext.GetMyPosition().ToString())
+               MakeKeyValuePair(MessageTypeStrings.CONTENT_TYPE, MessageTypeStrings.LEAVE_GAMEROOM),
+               MakeKeyValuePair(MessageTypeStrings.ROOMID, roomContext.GetRoomId().ToString()),
+               MakeKeyValuePair(MessageTypeStrings.POSITION, roomContext.GetMyPosition().ToString())
             };
             request = GetDataInstanceAfterSettingDataMap(keyValPairs);
         }
         packetManager.PackMessage(protoObj : request);
-        SceneManager.LoadScene("GameLobby");
+        SceneManager.LoadScene(PathStrings.SCENE_GAMELOBBY);
     }
 
     public void OnTeamChangeButtonClicked()
@@ -77,9 +76,9 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
             Tuple<string, string>[] keyValPairs =
             {
-                MakeKeyValuePair("contentType", "TEAM_CHANGE"),
-                MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-                MakeKeyValuePair("prev_position", roomContext.GetMyPosition().ToString())
+                MakeKeyValuePair(MessageTypeStrings.CONTENT_TYPE, MessageTypeStrings.TEAM_CHANGE),
+                MakeKeyValuePair(MessageTypeStrings.ROOMID, roomContext.GetRoomId().ToString()),
+                MakeKeyValuePair(MessageTypeStrings.PREV_POSITION, roomContext.GetMyPosition().ToString())
             };
             request = GetDataInstanceAfterSettingDataMap(keyValPairs);
         }
@@ -95,9 +94,9 @@ public class WaitingRoomUIMgr : MonoBehaviour {
             {
                 Tuple<string, string>[] keyValPairs =
                 {
-                    MakeKeyValuePair("contentType", "CHAT_MESSAGE"),
-                    MakeKeyValuePair("roomId", roomContext.GetRoomId().ToString()),
-                    MakeKeyValuePair("message", message)
+                    MakeKeyValuePair(MessageTypeStrings.CONTENT_TYPE, MessageTypeStrings.CHAT_MESSAGE),
+                    MakeKeyValuePair(MessageTypeStrings.ROOMID, roomContext.GetRoomId().ToString()),
+                    MakeKeyValuePair(MessageTypeStrings.CHAT_STRING, message)
                 };
                 Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
                 //packetManager.PackMessage(타입, data);
@@ -110,9 +109,9 @@ public class WaitingRoomUIMgr : MonoBehaviour {
     private void Start()
     {
         roomContext = RoomContext.GetInstance();
-        packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
+        packetManager = GameObject.Find(ElementStrings.PACKETMANAGER).GetComponent<PacketManager>();
         packetManager.SetHandleMessage(PopMessage);
-        painter = (WaitingRoomUIPainter)ScriptableObject.CreateInstance("WaitingRoomUIPainter");
+        painter = (WaitingRoomUIPainter)ScriptableObject.CreateInstance(ElementStrings.WAITINGROOMUIPAINTER);
         painter.Init(roomContext.GetMaxUserCount(), roomContext.IsHost());
         painter.Draw(roomContext, DrawType.BOTH);
     }
@@ -128,8 +127,8 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void ProcessTeamChangeEventReceived(MapField response) //test private
     {
-        int prevPos = int.Parse(response["prev_position"]);
-        int nextPos = int.Parse(response["next_position"]);
+        int prevPos = int.Parse(response[MessageTypeStrings.PREV_POSITION]);
+        int nextPos = int.Parse(response[MessageTypeStrings.NEXT_POSITION]);
 
         lock (Locks.lockForRoomContext)
         {
@@ -140,17 +139,17 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void ProcessReadyEventReceived(MapField response) //test private
     {
-        int position = int.Parse(response["position"]);
+        int position = int.Parse(response[MessageTypeStrings.POSITION]);
         lock (Locks.lockForRoomContext)
         {
             roomContext.ReverseReadyState(position);
         }
-        painter.ChangeReadyStateColor(GetCalculatedIndex(position), bool.Parse(response["toReady"]));
+        painter.ChangeReadyStateColor(GetCalculatedIndex(position), bool.Parse(response[MessageTypeStrings.TOREADY]));
     }
 
     private void ProcessLeaveEventReceived(MapField response)
     {
-        int position = int.Parse(response["position"]);
+        int position = int.Parse(response[MessageTypeStrings.POSITION]);
         lock (Locks.lockForRoomContext)
         {
             roomContext.DeleteUserFromTeam(position);
@@ -160,7 +159,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void ProcessHostChangeEventReceived(MapField response)
     {
-        int newHostPos = int.Parse(response["newHost"]);
+        int newHostPos = int.Parse(response[MessageTypeStrings.NEWHOST]);
         //방장을 저장하는게 없네 현재... 정보는 클라이언트에서 가지고있어서 간단한 문제라 이건 나중에 의논하기로..
         bool isReady;
         bool isHost;
@@ -203,34 +202,34 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     private void PopMessage(object obj, Type type)
     {
-        if(type.Name == "Int32")
+        if(type.Name == MessageTypeStrings.INT32)
         {
             int messageType = (int)obj;
             if(messageType == MessageType.START_GAME)
             {
                 Debug.Log("GAME START!!");
-                SceneManager.LoadScene("InGame");
+                SceneManager.LoadScene(PathStrings.SCENE_INGAME);
             }
         }
-        else if(type.Name == "Data")
+        else if(type.Name == MessageTypeStrings.DATA)
         {
             MapField response = ((Data)obj).DataMap;
-            string contentType = response["contentType"];
+            string contentType = response[MessageTypeStrings.CONTENT_TYPE];
             switch(contentType)
             {
-                case "TEAM_CHANGE":
+                case MessageTypeStrings.TEAM_CHANGE:
                     ProcessTeamChangeEventReceived(response);
                     break;
 
-                case "LEAVE_GAMEROOM":
+                case MessageTypeStrings.LEAVE_GAMEROOM:
                     ProcessLeaveEventReceived(response);
                     break;
 
-                case "READY_EVENT":
+                case MessageTypeStrings.READY_EVENT:
                     ProcessReadyEventReceived(response);
                     break;
 
-                case "HOST_CHANGED":
+                case MessageTypeStrings.HOST_CHANGED:
                     ProcessHostChangeEventReceived(response);
                     break;
 
@@ -238,7 +237,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
                     break;
             }
         }
-        else if (type.Name == "Client")
+        else if (type.Name == MessageTypeStrings.CLIENT)
         {
             ProcessUserEnterEventReceived((Client)obj);
         }

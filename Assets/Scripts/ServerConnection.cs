@@ -10,11 +10,18 @@ using System.Net;
 
 public class ServerConnection : MonoBehaviour {
     
-    // Callback method declaration...
     public delegate bool UnpackHeader(byte[] buffer, ref int type, ref int length);
     public delegate void UnpackMessage(byte[] buffer, int type, int length);
 
-    // Setting Callback method 
+    private const string ADDR = "127.0.0.1";
+    private const int PORT = 9910;
+    private TcpClient socket;
+    private NetworkStream nStream;
+    private UnpackHeader unpackHeader;
+    private UnpackMessage unpackMessage;
+    private static ServerConnection instance;
+    private bool isEnd;
+
     public void SetUnpackFunctions(UnpackHeader headerFunc, UnpackMessage messageFunc)
     {
         unpackHeader = headerFunc;
@@ -28,17 +35,7 @@ public class ServerConnection : MonoBehaviour {
 
         await nStream.WriteAsync(msg, 0, size);
     }
-    
-    private const string ADDR = "127.0.0.1";
-    private const int PORT = 9910;
-    private TcpClient socket;
-    private NetworkStream nStream;
-    private UnpackHeader unpackHeader;
-    private UnpackMessage unpackMessage;
-    private static ServerConnection instance;
-
-    private bool isEnd;
-
+   
     private void Start()
     {
         if (instance != null)
@@ -67,16 +64,12 @@ public class ServerConnection : MonoBehaviour {
     {
         socket = new TcpClient();
         await socket.ConnectAsync(ADDR, PORT);
-        Debug.Log("connect completed");
         nStream = socket.GetStream();
-        Debug.Log("stream setting completed");
         StartListeningThread();
     }
 
     private async Task StartListeningThread()
     {
-        Debug.Log("Recv Start....");
-
         byte[] buffer;
         int type, length;
         const int BUF_SIZE = 1024;
