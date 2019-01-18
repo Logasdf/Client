@@ -61,7 +61,7 @@ public class LobbyUIMgr : MonoBehaviour {
         }
         else
         {
-            if(MessageType.ROOMLIST == (int)obj)
+            if(MessageType.EMPTY_ROOMLIST == (int)obj)
             {
                 painter.DestroyRoomObjects();
             }
