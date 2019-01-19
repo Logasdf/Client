@@ -1,5 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 
 using Google.Protobuf.State;
 using Google.Protobuf.Packet.Room;
@@ -52,7 +51,7 @@ public class GameManager : MonoBehaviour {
         {
             Destroy(this.gameObject);
         }
-        _packetManager = GameObject.Find("PacketManager").GetComponent<PacketManager>();
+        _packetManager = GameObject.Find(ElementStrings.PACKETMANAGER).GetComponent<PacketManager>();
         _packetManager.SetHandleMessage(PopMessage);
         DontDestroyOnLoad(this.gameObject);
     }
@@ -103,7 +102,7 @@ public class GameManager : MonoBehaviour {
                 redTeamSpawns[clnt.Position + 1].transform);
             player.GetComponent<MeshRenderer>().material.color = Color.red;
             player.name = clnt.Name;
-            player.tag = (isRedTeam) ? "MYTEAM" : "ENEMY";
+            player.tag = (isRedTeam) ? ElementStrings.MYTEAMTAG : ElementStrings.ENEMYTAG;
             player.transform.SetParent(transform.Find("/RedTeam"));
 
             redPlayers[clnt.Position].Init(roomContext.GetRoomId(), clnt, player);
@@ -118,7 +117,7 @@ public class GameManager : MonoBehaviour {
                 blueTeamSpawns[clnt.Position % BLUEINDEXSTART + 1].transform);
             player.GetComponent<MeshRenderer>().material.color = Color.blue;
             player.name = clnt.Name;
-            player.tag = (!isRedTeam) ? "MYTEAM" : "ENEMY";
+            player.tag = (!isRedTeam) ? ElementStrings.MYTEAMTAG : ElementStrings.ENEMYTAG;
             player.transform.SetParent(transform.Find("/BlueTeam"));
 
             bluePlayers[clnt.Position % BLUEINDEXSTART].Init(roomContext.GetRoomId(), clnt, player);
@@ -126,7 +125,7 @@ public class GameManager : MonoBehaviour {
         }
 
         myContext = (myPosition < BLUEINDEXSTART) ? redPlayers[myPosition] : bluePlayers[myPosition % BLUEINDEXSTART];
-        SmoothFollow sf = GameObject.Find("Main Camera").GetComponent<SmoothFollow>();
+        SmoothFollow sf = GameObject.Find(ElementStrings.MAINCAMERA).GetComponent<SmoothFollow>();
         sf.setTarget(myContext.Player.transform);
 
         SetUserInfoPool();
@@ -158,8 +157,8 @@ public class GameManager : MonoBehaviour {
         for(int i = 0; i < size; ++i)
         {
             userInfoPool[i] = Instantiate(pfUserInfo);
-            userInfo[i, 0] = userInfoPool[i].transform.Find("UserName").GetComponent<Text>();
-            userInfo[i, 1] = userInfoPool[i].transform.Find("KDA").GetComponent<Text>();
+            userInfo[i, 0] = userInfoPool[i].transform.Find(ElementStrings.USERNAME_PANEL).GetComponent<Text>();
+            userInfo[i, 1] = userInfoPool[i].transform.Find(ElementStrings.KDASTATE).GetComponent<Text>();
 
             if (i < 8)
             {
@@ -217,9 +216,9 @@ public class GameManager : MonoBehaviour {
         Debug.Log(string.Format("{0} in Room {1} is fired!", fromClnt, roomContext.GetRoomId()));
 
         Data request = new Data();
-        request.DataMap["contentType"] = "FIRE_BULLET";
-        request.DataMap["roomId"] = Convert.ToString(roomContext.GetRoomId());
-        request.DataMap["fromClnt"] = fromClnt;
+        request.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.FIRE_BULLET;
+        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.GetRoomId());
+        request.DataMap[MessageTypeStrings.MESSAGEFROM] = fromClnt;
 
         _packetManager.PackMessage(protoObj: request);
     }
@@ -239,10 +238,10 @@ public class GameManager : MonoBehaviour {
     public void SendBeShotEvent(string fromClnt, string toClnt)
     {
         Data request = new Data();
-        request.DataMap["contentType"] = "BE_SHOT";
-        request.DataMap["roomId"] = Convert.ToString(roomContext.GetRoomId());
-        request.DataMap["fromClnt"] = fromClnt;
-        request.DataMap["toClnt"] = toClnt;
+        request.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.BE_SHOT;
+        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.GetRoomId());
+        request.DataMap[MessageTypeStrings.MESSAGEFROM] = fromClnt;
+        request.DataMap[MessageTypeStrings.MESSAGETO] = toClnt;
         //request.DataMap["hitType"] = "";
 
         _packetManager.PackMessage(protoObj: request);
@@ -255,30 +254,30 @@ public class GameManager : MonoBehaviour {
 
     private void PopMessage(object obj, Type type)
     {
-        if (type.Name == "Data")
+        if (type.Name == MessageTypeStrings.DATA)
         {
             //Data response = (Data)obj;
-            //string contentType = response.DataMap["contentType"];
+            //string contentType = response.DataMap[MessageTypeStrings.CONTENT_TYPE];
             //switch (contentType)
             //{
-            //    case "FIRE_BULLET":
-            //        string fromClnt = response.DataMap["fromClnt"];
-            //        HandleFireBulletEvent(fromClnt);
-            //        break;
-            //    case "BE_SHOT":
-            //        fromClnt = response.DataMap["fromClnt"];
-            //        string toClnt = response.DataMap["toClnt"];
-            //        Debug.Log(string.Format("{0} was shot by {1}", toClnt, fromClnt));
-            //        //HandleBeShotEvent();
-            //        break;
+                //case MessageTypeStrings.FIRE_BULLET:
+                    //string fromClnt = response.DataMap[MessageTypeStrings.MESSAGEFROM];
+                   // HandleFireBulletEvent(fromClnt);
+                   // break;
+                //case "BE_SHOT":
+                //    fromClnt = response.DataMap["fromClnt"];
+                //    string toClnt = response.DataMap["toClnt"];
+                //    Debug.Log(string.Format("{0} was shot by {1}", toClnt, fromClnt));
+                //    //HandleBeShotEvent();
+                //    break;
             //}
         }
-        else if (type.Name == "PlayState")
+        else if (type.Name == MessageTypeStrings.PLAYSTATE)
         {
             Debug.Log("Update PlayState");
             UpdatePlayerState((PlayState)obj);
         }
-        else if (type.Name == "WorldState")
+        else if (type.Name == MessageTypeStrings.WORLDSTATE)
         {
             Debug.Log("Update WorldState");
             UpdateWorldState((WorldState)obj);

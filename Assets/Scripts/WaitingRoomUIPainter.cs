@@ -1,6 +1,4 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
 
 public class WaitingRoomUIPainter : ScriptableObject {
@@ -25,8 +23,8 @@ public class WaitingRoomUIPainter : ScriptableObject {
 
     public void Init(int size, bool isHost)
     {
-        readyBtn = GameObject.Find("ReadyBtn");
-        startBtn = GameObject.Find("StartBtn");
+        readyBtn = GameObject.Find(ElementStrings.READY_BTN);
+        startBtn = GameObject.Find(ElementStrings.START_BTN);
  
         CreateUserPrefabPool(size);
         AssignPrefabsToEachList(size/2);
@@ -79,10 +77,10 @@ public class WaitingRoomUIPainter : ScriptableObject {
 
     private void OnEnable()
     {
-        eachUserPrefab = (GameObject)Resources.Load("Prefabs/EachUser");
-        redList = GameObject.Find("RedTeamList");
-        blueList = GameObject.Find("BlueTeamList");
-        chatContents = GameObject.Find("ChatMessage").GetComponent<Text>();
+        eachUserPrefab = (GameObject)Resources.Load(PathStrings.EACHUSER);
+        redList = GameObject.Find(ElementStrings.REDTEAMLIST);
+        blueList = GameObject.Find(ElementStrings.BLUETEAMLIST);
+        chatContents = GameObject.Find(ElementStrings.CHAT_INPUTFIELD).GetComponent<Text>();
         ChangeGridCellSize();
     }
 
@@ -94,7 +92,7 @@ public class WaitingRoomUIPainter : ScriptableObject {
         for (int i = 0; i < size; i++)
         {
             eachUserPrefabPool[i] = Instantiate(eachUserPrefab);
-            usernameTextArray[i] = eachUserPrefabPool[i].transform.Find("UserName").GetComponent<Text>();
+            usernameTextArray[i] = eachUserPrefabPool[i].transform.Find(ElementStrings.USERNAME_PANEL).GetComponent<Text>();
         }
     }
 
