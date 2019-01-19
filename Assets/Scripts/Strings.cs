@@ -95,6 +95,7 @@ public static class MessageTypeStrings
     public const string BE_SHOT = "BE_SHOT";
 
     public const string PLAYSTATE = "PlayState";
+    public const string WORLDSTATE = "WorldState";
     public const string MESSAGEFROM = "fromClnt";
     public const string MESSAGETO = "toClnt";
 

@@ -277,7 +277,7 @@ public class GameManager : MonoBehaviour {
             Debug.Log("Update PlayState");
             UpdatePlayerState((PlayState)obj);
         }
-        else if (type.Name == "WorldState")
+        else if (type.Name == MessageTypeStrings.WORLDSTATE)
         {
             Debug.Log("Update WorldState");
             UpdateWorldState((WorldState)obj);

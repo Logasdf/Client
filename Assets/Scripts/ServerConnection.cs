@@ -1,53 +1,44 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using System.Net.Sockets;
-using System.IO;
-using System.Threading;
+﻿using System.Net.Sockets;
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
-using System.Net;
 
-public class ServerConnection : MonoBehaviour {
-    
-    public delegate bool UnpackHeader(byte[] buffer, ref int type, ref int length);
-    public delegate void UnpackMessage(byte[] buffer, int type, int length);
+public class ServerConnection : MonoBehaviour
+{
+    public delegate void ReceiveCallback(byte[] buffer, int readBytes);
 
     private const string ADDR = "127.0.0.1";
     private const int PORT = 9910;
     private TcpClient socket;
     private NetworkStream nStream;
-    private UnpackHeader unpackHeader;
-    private UnpackMessage unpackMessage;
+    private ReceiveCallback receiveCallback;
     private static ServerConnection instance;
     private bool isEnd;
 
-    public void SetUnpackFunctions(UnpackHeader headerFunc, UnpackMessage messageFunc)
+    public void SetReceiveCallBack(ReceiveCallback cb)
     {
-        unpackHeader = headerFunc;
-        unpackMessage = messageFunc;
+        receiveCallback += cb;
     }
 
     public async Task SendMessage(byte[] msg, int size)
     {
         if (nStream == null)
             return;
-      
+
         try
         {
             await nStream.WriteAsync(msg, 0, size);
         }
-        catch(InvalidOperationException ioe)
+        catch (InvalidOperationException ioe)
         {
             Debug.Log(ioe.Message);
         }
-        catch(Exception e)
+        catch (Exception e)
         {
             Debug.Log(e.Message);
         }
-        //Debug.Log("Send Completed, size : " + size);
     }
-   
+
     private void Start()
     {
         if (instance != null)
@@ -66,9 +57,9 @@ public class ServerConnection : MonoBehaviour {
     {
         Debug.Log("ServerConnection OnDestroy()");
         isEnd = true;
-        if(nStream != null)
+        if (nStream != null)
             nStream.Close();
-        if(socket != null)
+        if (socket != null)
             socket.Close();
     }
 
@@ -82,19 +73,14 @@ public class ServerConnection : MonoBehaviour {
 
     private async Task StartListeningThread()
     {
-        byte[] buffer;
-        int type, length;
         const int BUF_SIZE = 1024;
-        while(!isEnd)
+        byte[] buffer = new byte[BUF_SIZE];
+
+        while (!isEnd)
         {
-            buffer = new byte[BUF_SIZE];
-            await nStream.ReadAsync(buffer, 0, 8);
-            type = length = 0;
-            if (unpackHeader(buffer, ref type, ref length))
-            {
-                await nStream.ReadAsync(buffer, 8, length);
-                unpackMessage(buffer, type, length);
-            };
+            int readBytes = await nStream.ReadAsync(buffer, 0, BUF_SIZE);
+            receiveCallback(buffer, readBytes);
+            Array.Clear(buffer, 0, BUF_SIZE);
         }
     }
 }
