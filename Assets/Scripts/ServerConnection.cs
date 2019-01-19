@@ -2,6 +2,7 @@
 using System.Threading.Tasks;
 using UnityEngine;
 using System;
+using Assets.Scripts.Connection;
 
 public class ServerConnection : MonoBehaviour
 {
@@ -66,7 +67,8 @@ public class ServerConnection : MonoBehaviour
     private async Task CreateConnection()
     {
         socket = new TcpClient();
-        await socket.ConnectAsync(ADDR, PORT);
+        //await socket.ConnectAsync(ADDR, PORT);
+        await socket.ConnectAsync(ServerInfo.IP, Int32.Parse(ServerInfo.Port));
         nStream = socket.GetStream();
         StartListeningThread();
     }
