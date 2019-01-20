@@ -1,9 +1,5 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
 using Google.Protobuf.Packet.Room;
 using Google.Protobuf.State;
 
@@ -17,8 +13,11 @@ namespace Assets.Scripts
         public static readonly int CREATE = 3;
         public static readonly int ENTER = 4;
         public static readonly int EMPTY_ROOMLIST = 5;
-        public static readonly int READY_EVENT = 6;
-        public static readonly int START_GAME = 7;
+        public static readonly int SEEK_MYPOSITION = 6;
+        public static readonly int TEAM_CHANGE = 7;
+        public static readonly int READY_EVENT = 8;
+        public static readonly int LEAVE_GAMEROOM = 9;
+        public static readonly int START_GAME = 10;
 
         public static readonly int DATA = 100;
         public static readonly int ROOMLIST = 101;

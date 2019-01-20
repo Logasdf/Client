@@ -74,12 +74,9 @@ public static class MessageTypeStrings
     public const string LIMIT = "limits";
 
     //WAITING ROOM
-    public const string LEAVE_GAMEROOM = "LEAVE_GAMEROOM";
-    public const string TEAM_CHANGE = "TEAM_CHANGE";
-    public const string START_GAME = "START_GAME";
-    public const string READY_EVENT = "READY_EVENT";
-    public const string HOST_CHANGED = "HOST_CHANGED";
+    public const string MY_POSITION = "CLIENT_POSITION";
     public const string CHAT_MESSAGE = "CHAT_MESSAGE";
+    public const string START_GAME = "START_GAME";
 
     public const string CLIENT = "Client";
     public const string ROOMID = "roomId";
