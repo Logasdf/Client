@@ -60,10 +60,10 @@ public class GameManager : MonoBehaviour {
     void Start () {
         playerMap = new Dictionary<string, PlayerContext>();
         roomContext = RoomContext.GetInstance();
-        redPlayers = new PlayerContext[roomContext.GetRedTeamUserCount()];
+        redPlayers = new PlayerContext[roomContext.RedteamCount];
         for (int i = 0; i < redPlayers.Length; ++i)
             redPlayers[i] = ScriptableObject.CreateInstance<PlayerContext>();
-        bluePlayers = new PlayerContext[roomContext.GetBlueTeamUserCount()];
+        bluePlayers = new PlayerContext[roomContext.BlueteamCount];
         for (int i = 0; i < bluePlayers.Length; ++i)
             bluePlayers[i] = ScriptableObject.CreateInstance<PlayerContext>();
 
@@ -92,12 +92,12 @@ public class GameManager : MonoBehaviour {
 
         Client clnt;
         GameObject player;
-        int redCount = roomContext.GetRedTeamUserCount();
+        int redCount = roomContext.RedteamCount;
         int myPosition = roomContext.GetMyPosition();
         bool isRedTeam = (myPosition < BLUEINDEXSTART);
         for(int i = 0; i < redCount; ++i)
         {
-            clnt = roomContext.GetRedTeamClient(i);
+            clnt = roomContext.GetRedteamClient(i);
             player = Instantiate((myPosition == clnt.Position) ? pfPlayer : pfTheOther,
                 redTeamSpawns[clnt.Position + 1].transform);
             player.GetComponent<MeshRenderer>().material.color = Color.red;
@@ -105,14 +105,14 @@ public class GameManager : MonoBehaviour {
             player.tag = (isRedTeam) ? ElementStrings.MYTEAMTAG : ElementStrings.ENEMYTAG;
             player.transform.SetParent(transform.Find("/RedTeam"));
 
-            redPlayers[clnt.Position].Init(roomContext.GetRoomId(), clnt, player);
+            redPlayers[clnt.Position].Init(roomContext.RoomId, clnt, player);
             playerMap[clnt.Name] = redPlayers[clnt.Position];
         }
 
-        int blueCount = roomContext.GetBlueTeamUserCount();
+        int blueCount = roomContext.BlueteamCount;
         for(int i = 0; i < blueCount; ++i)
         {
-            clnt = roomContext.GetBlueTeamClient(i);
+            clnt = roomContext.GetBlueteamClient(i);
             player = Instantiate((myPosition == clnt.Position) ? pfPlayer : pfTheOther,
                 blueTeamSpawns[clnt.Position % BLUEINDEXSTART + 1].transform);
             player.GetComponent<MeshRenderer>().material.color = Color.blue;
@@ -120,7 +120,7 @@ public class GameManager : MonoBehaviour {
             player.tag = (!isRedTeam) ? ElementStrings.MYTEAMTAG : ElementStrings.ENEMYTAG;
             player.transform.SetParent(transform.Find("/BlueTeam"));
 
-            bluePlayers[clnt.Position % BLUEINDEXSTART].Init(roomContext.GetRoomId(), clnt, player);
+            bluePlayers[clnt.Position % BLUEINDEXSTART].Init(roomContext.RoomId, clnt, player);
             playerMap[clnt.Name] = bluePlayers[clnt.Position % BLUEINDEXSTART];
         }
 
@@ -213,11 +213,11 @@ public class GameManager : MonoBehaviour {
 
     public void SendFireBulletEvent(string fromClnt)
     {
-        Debug.Log(string.Format("{0} in Room {1} is fired!", fromClnt, roomContext.GetRoomId()));
+        Debug.Log(string.Format("{0} in Room {1} is fired!", fromClnt, roomContext.RoomId));
 
         Data request = new Data();
         request.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.FIRE_BULLET;
-        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.GetRoomId());
+        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.RoomId);
         request.DataMap[MessageTypeStrings.MESSAGEFROM] = fromClnt;
 
         _packetManager.PackMessage(protoObj: request);
@@ -239,7 +239,7 @@ public class GameManager : MonoBehaviour {
     {
         Data request = new Data();
         request.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.BE_SHOT;
-        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.GetRoomId());
+        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.RoomId);
         request.DataMap[MessageTypeStrings.MESSAGEFROM] = fromClnt;
         request.DataMap[MessageTypeStrings.MESSAGETO] = toClnt;
         //request.DataMap["hitType"] = "";

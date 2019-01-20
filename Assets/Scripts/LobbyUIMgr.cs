@@ -55,7 +55,7 @@ public class LobbyUIMgr : MonoBehaviour {
         else if (type.Name == MessageTypeStrings.ROOMINFO)
         {
             RoomInfo room = (RoomInfo)obj;
-            roomContext.InitRoomContext(room);
+            roomContext.SetRoomInfo(room);
             SceneManager.LoadScene(PathStrings.SCENE_WAITINGROOM);
         }
         else

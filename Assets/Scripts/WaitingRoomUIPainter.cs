@@ -1,12 +1,9 @@
-﻿using UnityEngine;
+﻿using Google.Protobuf.Packet.Room;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class WaitingRoomUIPainter : ScriptableObject {
 
-    public enum DrawType
-    {
-        REDONLY, BLUEONLY, BOTH
-    }
     private GameObject eachUserPrefab;
     private GameObject redList;
     private GameObject blueList;
@@ -17,57 +14,43 @@ public class WaitingRoomUIPainter : ScriptableObject {
     private Text chatContents;
     private Text[] usernameTextArray;
 
+    private RoomContext rContext;
+
+    private int blueteamStartIdx;
     private readonly Color readyColor = Color.yellow;
     private readonly Color notReadyColor = Color.black;
 
 
-    public void Init(int size, bool isHost)
+    public void Init(RoomContext roomContext)
     {
         readyBtn = GameObject.Find(ElementStrings.READY_BTN);
         startBtn = GameObject.Find(ElementStrings.START_BTN);
- 
-        CreateUserPrefabPool(size);
-        AssignPrefabsToEachList(size/2);
-        DisplayAppropriateButton(isHost);
+        rContext = roomContext;
+        blueteamStartIdx = rContext.UserLimit / 2;
+
+        CreateUserPrefabPool();
+        AssignPrefabsToEachList();
+        InitReadyButton();
     }
 
-    public void ChangeReadyStateColor(int index, bool toReady)
+    private void InitReadyButton()
     {
-        eachUserPrefabPool[index].GetComponent<Image>().color = toReady ? readyColor : notReadyColor;
+        readyBtn.SetActive(true);
+        startBtn.SetActive(false);
     }
 
-    public void DisplayAppropriateButton(bool isHost)
+    private void DisplayStartButton()
     {
-        if(isHost)
-        {
-            readyBtn.SetActive(false);
-            startBtn.SetActive(true);
-        }
-        else
-        {
-            readyBtn.SetActive(true);
-            startBtn.SetActive(false);
-        }
+        readyBtn.SetActive(false);
+        startBtn.SetActive(true);
     }
 
-    public void Draw(RoomContext rContext, DrawType drawType)
-    {   //텍스트랑 색상그리는거를 나눠야 더 좋을 것 같은데.....
-        lock(Locks.lockForRoomContext)
-        {
-            switch (drawType)
-            {
-                case DrawType.REDONLY:
-                    DrawRedTeam(rContext);
-                    break;
-                case DrawType.BLUEONLY:
-                    DrawBlueTeam(rContext);
-                    break;
-                case DrawType.BOTH:
-                    DrawRedTeam(rContext);
-                    DrawBlueTeam(rContext);
-                    break;
-            }
-        }
+    public void Draw()
+    {   
+        DrawRedTeam();
+        DrawBlueTeam();
+        if (rContext.Host)
+            DisplayStartButton();
     }
 
     public void AddMessageToChatWindow(string msg)
@@ -84,8 +67,9 @@ public class WaitingRoomUIPainter : ScriptableObject {
         ChangeGridCellSize();
     }
 
-    private void CreateUserPrefabPool(int size)
-    {   
+    private void CreateUserPrefabPool()
+    {
+        int size = rContext.UserLimit;
         eachUserPrefabPool = new GameObject[size];
         usernameTextArray = new Text[size];
 
@@ -96,46 +80,9 @@ public class WaitingRoomUIPainter : ScriptableObject {
         }
     }
 
-    private void DrawRedTeam(RoomContext rContext)
+    private void AssignPrefabsToEachList()
     {
-        int i = 0;
-        int redTeamIdx = rContext.GetRedTeamUserCount();
-        int maxCount = rContext.GetMaxUserCount() / 2;
-
-        for (; i < redTeamIdx; i++)
-        {
-            usernameTextArray[i].text = rContext.GetRedTeamClient(i).Name;
-            ChangeReadyStateColor(i, rContext.GetRedTeamClient(i).Ready);
-        }
-        for (; i < maxCount; i++)
-        {
-            usernameTextArray[i].text = "";
-            ChangeReadyStateColor(i, false);
-        }
-    }
-
-    private void DrawBlueTeam(RoomContext rContext)
-    {
-        int maxCount = rContext.GetMaxUserCount() / 2;
-        int i = maxCount;
-        int blueTeamIdx = maxCount + rContext.GetBlueTeamUserCount();
-
-        for (; i < blueTeamIdx; i++)
-        {
-            usernameTextArray[i].text = rContext.GetBlueTeamClient(i % maxCount).Name;
-            ChangeReadyStateColor(i, rContext.GetBlueTeamClient(i % maxCount).Ready);
-        }
-        maxCount += maxCount;
-        for (; i < maxCount; i++)
-        {
-            usernameTextArray[i].text = "";
-            ChangeReadyStateColor(i, false);
-        }
-    }
-
-    private void AssignPrefabsToEachList(int size)
-    {
-        int i = 0;
+        int i = 0, size = rContext.UserLimit/2;
         for (; i < size; i++)
             eachUserPrefabPool[i].transform.SetParent(redList.transform, false);
 
@@ -151,4 +98,47 @@ public class WaitingRoomUIPainter : ScriptableObject {
         redList.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
         blueList.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
     }
+
+    private void DrawRedTeam()
+    {
+        int i = 0, endIdx = rContext.RedteamCount;
+        Client clnt;
+        for(; i < endIdx; i++)
+        {
+            clnt = rContext.GetRedteamClient(i);
+            usernameTextArray[i].text = clnt.Name;
+            ChangeReadyStateColor(i, clnt.Ready);
+        }
+
+        for(; i < blueteamStartIdx; i++)
+        {
+            usernameTextArray[i].text = "";
+            ChangeReadyStateColor(i, false);
+        }
+    }
+
+    private void DrawBlueTeam()
+    {
+        int i = blueteamStartIdx, endIdx = i + rContext.BlueteamCount;
+        Client clnt;
+        for(; i < endIdx; i++)
+        {
+            clnt = rContext.GetBlueteamClient(i - blueteamStartIdx);
+            usernameTextArray[i].text = clnt.Name;
+            ChangeReadyStateColor(i, clnt.Ready);
+        }
+
+        endIdx = rContext.UserLimit;
+        for(; i < endIdx; i++)
+        {
+            usernameTextArray[i].text = "";
+            ChangeReadyStateColor(i, false);
+        }
+    }
+
+    private void ChangeReadyStateColor(int index, bool isReady)
+    {
+        eachUserPrefabPool[index].GetComponent<Image>().color = isReady ? readyColor : notReadyColor;
+    }
+
 }

@@ -91,7 +91,7 @@ public class PacketManager : MonoBehaviour
                 start += length;
             }
 
-            hasMore = (readBytes >= start) ? true : false;
+            hasMore = (readBytes > start) ? true : false;
         }
     }
 
