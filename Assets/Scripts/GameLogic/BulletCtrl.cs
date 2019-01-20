@@ -5,10 +5,10 @@ using UnityEngine;
 public class BulletCtrl : MonoBehaviour {
 
     public float damage = 10.0f;
-    public float bulletSpeed = 1000.0f;
+    public float bulletSpeed = 5000.0f;
 
-	// Use this for initialization
-	void Start () {
+    private void Start()
+    {
         GetComponent<Rigidbody>().AddForce(transform.forward * bulletSpeed);
-	}
+    }
 }

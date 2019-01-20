@@ -54,7 +54,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1830139302819146}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.3, y: 0.2, z: 0.7}
+  m_LocalPosition: {x: 0.3, y: 0.2, z: 1.5}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4608710922134936}
@@ -67,7 +67,7 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1910822380424382}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 5, z: 0}
+  m_LocalPosition: {x: -16.135996, y: 5, z: -15.390759}
   m_LocalScale: {x: 3, y: 10, z: 3}
   m_Children:
   - {fileID: 4482123794807532}
@@ -141,7 +141,7 @@ BoxCollider:
   m_IsTrigger: 0
   m_Enabled: 1
   serializedVersion: 2
-  m_Size: {x: 1.05, y: 1.05, z: 1.05}
+  m_Size: {x: 1.2, y: 1.2, z: 1.2}
   m_Center: {x: 0, y: 0, z: 0}
 --- !u!114 &114231783077675746
 MonoBehaviour:
@@ -167,6 +167,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   moveSpeed: 45
   rotSpeed: 120
-  bullet: {fileID: 1613793094736518, guid: fae5654a261e35a4a90a3410177437c2, type: 2}
+  bullet: {fileID: 1400202694447126, guid: fae5654a261e35a4a90a3410177437c2, type: 2}
   firePos: {fileID: 4482123794807532}
   clickInterval: 0.1

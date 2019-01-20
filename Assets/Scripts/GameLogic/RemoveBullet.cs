@@ -8,16 +8,35 @@ public class RemoveBullet : MonoBehaviour {
     {
         if(collision.collider.tag == "BULLET")
         {
-            if (gameObject.tag == "ENEMY")
+            if (gameObject.tag != "ENEMY" && gameObject.tag != "MYTEAM")
             {
-                Debug.Log("It's an enemy");
-                //GameManager.instance.SendBeShotEvent(gameObject.name, collision.gameObject.name);
+                Destroy(collision.collider.gameObject);
             }
             else if(gameObject.tag == "MYTEAM")
             {
-                Debug.Log("It's my team");
+                gameObject.GetComponent<Rigidbody>().isKinematic = true;
+                Destroy(collision.collider.gameObject);
             }
-            Destroy(collision.gameObject);
+            else if(gameObject.tag == "ENEMY")
+            {
+                gameObject.GetComponent<Rigidbody>().isKinematic = true;
+                Destroy(collision.collider.gameObject);
+            }
+        }
+    }
+
+    private void OnCollisionExit(Collision collision)
+    {
+        if (collision.collider.tag == "BULLET")
+        {
+            if (gameObject.tag == "MYTEAM")
+            {
+                gameObject.GetComponent<Rigidbody>().isKinematic = false;
+            }
+            else if (gameObject.tag == "ENEMY")
+            {
+                gameObject.GetComponent<Rigidbody>().isKinematic = false;
+            }
         }
     }
 }

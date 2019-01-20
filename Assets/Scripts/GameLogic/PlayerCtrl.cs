@@ -55,20 +55,21 @@ public class PlayerCtrl : MonoBehaviour {
     private void Update()
     {
         accTimeForFire += Time.deltaTime;
-        if(accTimeForFire >= clickInterval)
+        if(accTimeForFire >= clickInterval && Input.GetMouseButton(0))
         {
             accTimeForFire = 0f;
             FireBullet();
         }
 
-        Debug.Log(string.Format("Frame #{0} Broadcast!", Time.frameCount));
-        BroadcastMyState();
+        //Debug.Log(string.Format("Frame #{0} Broadcast!", Time.frameCount));
+        //BroadcastMyState();
     }
 
     private void FireBullet()
     {
-        myContext.SetFireFlag(true);
-        Instantiate(bullet, firePos.position, firePos.rotation);
+        //myContext.SetFireFlag(true);
+        GameObject _bullet = Instantiate(bullet, firePos.position, firePos.rotation);
+        Destroy(_bullet, 5f);
     }
 
     private void BroadcastMyState()
@@ -77,9 +78,6 @@ public class PlayerCtrl : MonoBehaviour {
         gm.PacketManager.PackMessage(protoObj: myContext.WorldState);
 
         ResetState();
-        //myContext.State.AnimState = (int)PlayerContext.Animation.MOVE;
-        //myContext.CopyToTransformProto();
-        //gm.PacketManager.PackMessage(protoObj: myContext.State);
     }
 
     private void ResetState()

@@ -32,17 +32,19 @@ namespace Google.Protobuf.State {
             "cmFuc2Zvcm0YASABKAsyFS5zdGF0ZS5UcmFuc2Zvcm1Qcm90bxIRCglhbmlt",
             "U3RhdGUYAiABKAUSDgoGaGVhbHRoGAMgASgFEhEKCWtpbGxDb3VudBgEIAEo",
             "BRISCgpkZWF0aENvdW50GAUgASgFEg4KBnJvb21JZBgGIAEoBRIQCghjbG50",
-            "TmFtZRgHIAEoCSJnCgpXb3JsZFN0YXRlEg4KBnJvb21JZBgBIAEoBRIQCghj",
-            "bG50TmFtZRgCIAEoCRIoCgl0cmFuc2Zvcm0YAyABKAsyFS5zdGF0ZS5UcmFu",
-            "c2Zvcm1Qcm90bxINCgVmaXJlZBgEIAEoCEIYqgIVR29vZ2xlLlByb3RvYnVm",
-            "LlN0YXRlYgZwcm90bzM="));
+            "TmFtZRgHIAEoCSLbAQoKV29ybGRTdGF0ZRIOCgZyb29tSWQYASABKAUSEAoI",
+            "Y2xudE5hbWUYAiABKAkSKAoJdHJhbnNmb3JtGAMgASgLMhUuc3RhdGUuVHJh",
+            "bnNmb3JtUHJvdG8SDQoFZmlyZWQYBCABKAgSDgoGaGVhbHRoGAUgASgFEgwK",
+            "BGZyb20YBiABKAkSCgoCdG8YByABKAkSDgoGZGFtYWdlGAggASgFEhEKCWtp",
+            "bGxQb2ludBgJIAEoBRISCgpkZWF0aFBvaW50GAogASgFEhEKCWFuaW1TdGF0",
+            "ZRgLIAEoBUIYqgIVR29vZ2xlLlByb3RvYnVmLlN0YXRlYgZwcm90bzM="));
       descriptor = pbr::FileDescriptor.FromGeneratedCode(descriptorData,
           new pbr::FileDescriptor[] { },
           new pbr::GeneratedClrTypeInfo(null, new pbr::GeneratedClrTypeInfo[] {
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.Vector3Proto), global::Google.Protobuf.State.Vector3Proto.Parser, new[]{ "X", "Y", "Z" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.TransformProto), global::Google.Protobuf.State.TransformProto.Parser, new[]{ "Position", "Rotation", "Scale" }, null, null, null),
             new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.PlayState), global::Google.Protobuf.State.PlayState.Parser, new[]{ "Transform", "AnimState", "Health", "KillCount", "DeathCount", "RoomId", "ClntName" }, null, null, null),
-            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.WorldState), global::Google.Protobuf.State.WorldState.Parser, new[]{ "RoomId", "ClntName", "Transform", "Fired" }, null, null, null)
+            new pbr::GeneratedClrTypeInfo(typeof(global::Google.Protobuf.State.WorldState), global::Google.Protobuf.State.WorldState.Parser, new[]{ "RoomId", "ClntName", "Transform", "Fired", "Health", "From", "To", "Damage", "KillPoint", "DeathPoint", "AnimState" }, null, null, null)
           }));
     }
     #endregion
@@ -769,6 +771,13 @@ namespace Google.Protobuf.State {
       clntName_ = other.clntName_;
       transform_ = other.transform_ != null ? other.transform_.Clone() : null;
       fired_ = other.fired_;
+      health_ = other.health_;
+      from_ = other.from_;
+      to_ = other.to_;
+      damage_ = other.damage_;
+      killPoint_ = other.killPoint_;
+      deathPoint_ = other.deathPoint_;
+      animState_ = other.animState_;
       _unknownFields = pb::UnknownFieldSet.Clone(other._unknownFields);
     }
 
@@ -821,6 +830,83 @@ namespace Google.Protobuf.State {
       }
     }
 
+    /// <summary>Field number for the "health" field.</summary>
+    public const int HealthFieldNumber = 5;
+    private int health_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Health {
+      get { return health_; }
+      set {
+        health_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "from" field.</summary>
+    public const int FromFieldNumber = 6;
+    private string from_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string From {
+      get { return from_; }
+      set {
+        from_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "to" field.</summary>
+    public const int ToFieldNumber = 7;
+    private string to_ = "";
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public string To {
+      get { return to_; }
+      set {
+        to_ = pb::ProtoPreconditions.CheckNotNull(value, "value");
+      }
+    }
+
+    /// <summary>Field number for the "damage" field.</summary>
+    public const int DamageFieldNumber = 8;
+    private int damage_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int Damage {
+      get { return damage_; }
+      set {
+        damage_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "killPoint" field.</summary>
+    public const int KillPointFieldNumber = 9;
+    private int killPoint_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int KillPoint {
+      get { return killPoint_; }
+      set {
+        killPoint_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "deathPoint" field.</summary>
+    public const int DeathPointFieldNumber = 10;
+    private int deathPoint_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int DeathPoint {
+      get { return deathPoint_; }
+      set {
+        deathPoint_ = value;
+      }
+    }
+
+    /// <summary>Field number for the "animState" field.</summary>
+    public const int AnimStateFieldNumber = 11;
+    private int animState_;
+    [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
+    public int AnimState {
+      get { return animState_; }
+      set {
+        animState_ = value;
+      }
+    }
+
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute]
     public override bool Equals(object other) {
       return Equals(other as WorldState);
@@ -838,6 +924,13 @@ namespace Google.Protobuf.State {
       if (ClntName != other.ClntName) return false;
       if (!object.Equals(Transform, other.Transform)) return false;
       if (Fired != other.Fired) return false;
+      if (Health != other.Health) return false;
+      if (From != other.From) return false;
+      if (To != other.To) return false;
+      if (Damage != other.Damage) return false;
+      if (KillPoint != other.KillPoint) return false;
+      if (DeathPoint != other.DeathPoint) return false;
+      if (AnimState != other.AnimState) return false;
       return Equals(_unknownFields, other._unknownFields);
     }
 
@@ -848,6 +941,13 @@ namespace Google.Protobuf.State {
       if (ClntName.Length != 0) hash ^= ClntName.GetHashCode();
       if (transform_ != null) hash ^= Transform.GetHashCode();
       if (Fired != false) hash ^= Fired.GetHashCode();
+      if (Health != 0) hash ^= Health.GetHashCode();
+      if (From.Length != 0) hash ^= From.GetHashCode();
+      if (To.Length != 0) hash ^= To.GetHashCode();
+      if (Damage != 0) hash ^= Damage.GetHashCode();
+      if (KillPoint != 0) hash ^= KillPoint.GetHashCode();
+      if (DeathPoint != 0) hash ^= DeathPoint.GetHashCode();
+      if (AnimState != 0) hash ^= AnimState.GetHashCode();
       if (_unknownFields != null) {
         hash ^= _unknownFields.GetHashCode();
       }
@@ -877,6 +977,34 @@ namespace Google.Protobuf.State {
         output.WriteRawTag(32);
         output.WriteBool(Fired);
       }
+      if (Health != 0) {
+        output.WriteRawTag(40);
+        output.WriteInt32(Health);
+      }
+      if (From.Length != 0) {
+        output.WriteRawTag(50);
+        output.WriteString(From);
+      }
+      if (To.Length != 0) {
+        output.WriteRawTag(58);
+        output.WriteString(To);
+      }
+      if (Damage != 0) {
+        output.WriteRawTag(64);
+        output.WriteInt32(Damage);
+      }
+      if (KillPoint != 0) {
+        output.WriteRawTag(72);
+        output.WriteInt32(KillPoint);
+      }
+      if (DeathPoint != 0) {
+        output.WriteRawTag(80);
+        output.WriteInt32(DeathPoint);
+      }
+      if (AnimState != 0) {
+        output.WriteRawTag(88);
+        output.WriteInt32(AnimState);
+      }
       if (_unknownFields != null) {
         _unknownFields.WriteTo(output);
       }
@@ -896,6 +1024,27 @@ namespace Google.Protobuf.State {
       }
       if (Fired != false) {
         size += 1 + 1;
+      }
+      if (Health != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Health);
+      }
+      if (From.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(From);
+      }
+      if (To.Length != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeStringSize(To);
+      }
+      if (Damage != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(Damage);
+      }
+      if (KillPoint != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(KillPoint);
+      }
+      if (DeathPoint != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(DeathPoint);
+      }
+      if (AnimState != 0) {
+        size += 1 + pb::CodedOutputStream.ComputeInt32Size(AnimState);
       }
       if (_unknownFields != null) {
         size += _unknownFields.CalculateSize();
@@ -922,6 +1071,27 @@ namespace Google.Protobuf.State {
       }
       if (other.Fired != false) {
         Fired = other.Fired;
+      }
+      if (other.Health != 0) {
+        Health = other.Health;
+      }
+      if (other.From.Length != 0) {
+        From = other.From;
+      }
+      if (other.To.Length != 0) {
+        To = other.To;
+      }
+      if (other.Damage != 0) {
+        Damage = other.Damage;
+      }
+      if (other.KillPoint != 0) {
+        KillPoint = other.KillPoint;
+      }
+      if (other.DeathPoint != 0) {
+        DeathPoint = other.DeathPoint;
+      }
+      if (other.AnimState != 0) {
+        AnimState = other.AnimState;
       }
       _unknownFields = pb::UnknownFieldSet.MergeFrom(_unknownFields, other._unknownFields);
     }
@@ -951,6 +1121,34 @@ namespace Google.Protobuf.State {
           }
           case 32: {
             Fired = input.ReadBool();
+            break;
+          }
+          case 40: {
+            Health = input.ReadInt32();
+            break;
+          }
+          case 50: {
+            From = input.ReadString();
+            break;
+          }
+          case 58: {
+            To = input.ReadString();
+            break;
+          }
+          case 64: {
+            Damage = input.ReadInt32();
+            break;
+          }
+          case 72: {
+            KillPoint = input.ReadInt32();
+            break;
+          }
+          case 80: {
+            DeathPoint = input.ReadInt32();
+            break;
+          }
+          case 88: {
+            AnimState = input.ReadInt32();
             break;
           }
         }
