@@ -16,6 +16,8 @@ public class WaitingRoomUIPainter : ScriptableObject {
     private Text errorMessageTextField;
     private Text[] usernameTextArray;
 
+    private ScrollRect chatScrollRect;
+
     private RoomContext rContext;
 
     private int blueteamStartIdx;
@@ -46,6 +48,7 @@ public class WaitingRoomUIPainter : ScriptableObject {
     public void AddMessageToChatWindow(string msg)
     {
         chatContents.text += msg + "\n";
+        chatScrollRect.verticalNormalizedPosition = 0;
     }
 
     public void DisplayErrorMessage(string msg)
@@ -59,7 +62,8 @@ public class WaitingRoomUIPainter : ScriptableObject {
         eachUserPrefab = (GameObject)Resources.Load(PathStrings.EACHUSER);
         redList = GameObject.Find(ElementStrings.REDTEAMLIST);
         blueList = GameObject.Find(ElementStrings.BLUETEAMLIST);
-        chatContents = GameObject.Find(ElementStrings.CHAT_INPUTFIELD).GetComponent<Text>();
+        chatContents = GameObject.Find(ElementStrings.CHAT_CONTENTHOLDER).GetComponent<Text>();
+        chatScrollRect = GameObject.Find(ElementStrings.MESSAGE_PANEL).GetComponent<ScrollRect>();
         errorWindow = (GameObject)Instantiate(Resources.Load(PathStrings.ERROR_MESSAGE_PANEL));
         ChangeGridCellSize();
     }

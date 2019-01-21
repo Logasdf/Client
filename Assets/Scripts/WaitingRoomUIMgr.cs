@@ -60,12 +60,13 @@ public class WaitingRoomUIMgr : MonoBehaviour {
                 {
                     MakeKeyValuePair(MessageTypeStrings.CONTENT_TYPE, MessageTypeStrings.CHAT_MESSAGE),
                     MakeKeyValuePair(MessageTypeStrings.ROOMID, roomContext.RoomId.ToString()),
-                    MakeKeyValuePair(MessageTypeStrings.CHAT_STRING, message)
+                    MakeKeyValuePair(MessageTypeStrings.CHAT_STRING, roomContext.GetMyUsername() + " : " + message)
                 };
                 Data request = GetDataInstanceAfterSettingDataMap(keyValPairs);
+                packetManager.PackMessage(protoObj: request);
+                chatField.text = "";
             }
-            chatField.text = "";
-            chatField.ActivateInputField();            
+            chatField.ActivateInputField();
         }   
     }
 
@@ -120,12 +121,15 @@ public class WaitingRoomUIMgr : MonoBehaviour {
                 case MessageTypeStrings.MY_POSITION:
                     lock(Locks.lockForRoomContext)
                     {
-                        roomContext.SetMyPosition(int.Parse(response["position"]));
+                        roomContext.SetMyPosition(int.Parse(response[MessageTypeStrings.POSITION]));
                         painter.Draw();
                     }
                     break;
+                case MessageTypeStrings.CHAT_MESSAGE:
+                    painter.AddMessageToChatWindow(response[MessageTypeStrings.CHAT_STRING]);
+                    break;
                 case MessageTypeStrings.REJECT_START_GAME:
-                    painter.DisplayErrorMessage(response["errorMessage"]);
+                    painter.DisplayErrorMessage(response[MessageTypeStrings.ERRORMESSAGE]);
                     break;
                 default:
                     break;
