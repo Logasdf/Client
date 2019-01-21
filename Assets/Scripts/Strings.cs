@@ -77,6 +77,7 @@ public static class MessageTypeStrings
     public const string MY_POSITION = "CLIENT_POSITION";
     public const string CHAT_MESSAGE = "CHAT_MESSAGE";
     public const string START_GAME = "START_GAME";
+    public const string REJECT_START_GAME = "REJECT_START_GAME";
 
     public const string CLIENT = "Client";
     public const string ROOMID = "roomId";

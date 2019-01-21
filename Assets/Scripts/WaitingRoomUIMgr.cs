@@ -124,6 +124,9 @@ public class WaitingRoomUIMgr : MonoBehaviour {
                         painter.Draw();
                     }
                     break;
+                case MessageTypeStrings.REJECT_START_GAME:
+                    painter.DisplayErrorMessage(response["errorMessage"]);
+                    break;
                 default:
                     break;
             }
