@@ -34,12 +34,18 @@ public class WaitingRoomUIMgr : MonoBehaviour {
 
     public void OnLeaveButtonClicked()
     {
+        if (CheckReadyState())
+            return;
+
         packetManager.PackMessage(MessageType.LEAVE_GAMEROOM);
         SceneManager.LoadScene(PathStrings.SCENE_GAMELOBBY);
     }
 
     public void OnTeamChangeButtonClicked()
     {
+        if (CheckReadyState())
+            return;
+
         packetManager.PackMessage(MessageType.TEAM_CHANGE);
     }
 
@@ -129,6 +135,7 @@ public class WaitingRoomUIMgr : MonoBehaviour {
                 //roomInfo가 오는 모든 경우
                 RoomInfo rInfo = (RoomInfo)obj;
                 roomContext.SetRoomInfo(rInfo);
+                //내 pos바뀔 가능성이 있는 경우 -> leave, teamchange
                 packetManager.PackMessage(MessageType.SEEK_MYPOSITION);
             }
         }
@@ -136,5 +143,23 @@ public class WaitingRoomUIMgr : MonoBehaviour {
         {
             Debug.Log("type unidentified. please check : " + type.Name);
         }
+    }
+
+    private bool CheckReadyState()
+    {
+        bool isReady;
+        lock (Locks.lockForRoomContext)
+        {
+            int myPos = roomContext.GetMyPosition();
+            Client clnt = myPos < 8 ? roomContext.GetRedteamClient(myPos) : roomContext.GetBlueteamClient(myPos - 8);
+            isReady = clnt.Ready;
+        }
+        
+        if(isReady)
+        {
+            string msg = "준비상태를 먼저 해제해주세요.";
+            painter.DisplayErrorMessage(msg);
+        }
+        return isReady;
     }
 } 
