@@ -18,28 +18,36 @@ public class GameManager : MonoBehaviour {
     public GameObject pfTheOther;
     public GameObject pfBullet;
 
+    // 상황판
     private bool isBoardActive;
-    [SerializeField]
-    private GameObject statusBoard;
-    [SerializeField]
-    private GameObject pfUserInfo;
     private GameObject redTeamInfo;
     private GameObject blueTeamInfo;
     private GameObject[] userInfoPool;
     private Text[,] userInfo;
 
+    [SerializeField]
+    private GameObject statusBoard;
+    [SerializeField]
+    private GameObject pfUserInfo;
+
+    // 스폰지역
     private Transform[] redTeamSpawns;
     private Transform[] blueTeamSpawns;
 
     private RoomContext roomContext;
+
     private PlayerContext myContext;
     public PlayerContext MyContext { get { return myContext;  } }
+
     private PlayerContext[] redPlayers;
     private PlayerContext[] bluePlayers;
-    private Dictionary<string, PlayerContext> playerMap;
+    private Dictionary<string, PlayerContext> playerMap; // <ClntName, PlayerConetext>
 
     private PacketManager _packetManager;
     public PacketManager PacketManager { get { return _packetManager; } }
+
+    private KillLogMgr killLogMgr;
+    public KillLogMgr KillLogMgr { get { return killLogMgr; } }
 
     private void Awake()
     {
@@ -53,6 +61,7 @@ public class GameManager : MonoBehaviour {
         }
         _packetManager = GameObject.Find(ElementStrings.PACKETMANAGER).GetComponent<PacketManager>();
         _packetManager.SetHandleMessage(PopMessage);
+        killLogMgr = GetComponent<KillLogMgr>();
         DontDestroyOnLoad(this.gameObject);
     }
 
@@ -60,6 +69,7 @@ public class GameManager : MonoBehaviour {
     void Start () {
         playerMap = new Dictionary<string, PlayerContext>();
         roomContext = RoomContext.GetInstance();
+
         redPlayers = new PlayerContext[roomContext.RedteamCount];
         for (int i = 0; i < redPlayers.Length; ++i)
             redPlayers[i] = ScriptableObject.CreateInstance<PlayerContext>();
@@ -75,6 +85,11 @@ public class GameManager : MonoBehaviour {
 	void Update () {
         ToggleStatusBoard();
 	}
+
+    private void LateUpdate()
+    {
+        UpdateUserInfoPool();
+    }
 
     private void ToggleStatusBoard()
     {
@@ -92,20 +107,21 @@ public class GameManager : MonoBehaviour {
 
         Client clnt;
         GameObject player;
+        Transform respawnPos;
         int redCount = roomContext.RedteamCount;
         int myPosition = roomContext.GetMyPosition();
         bool isRedTeam = (myPosition < BLUEINDEXSTART);
         for(int i = 0; i < redCount; ++i)
         {
             clnt = roomContext.GetRedteamClient(i);
-            player = Instantiate((myPosition == clnt.Position) ? pfPlayer : pfTheOther,
-                redTeamSpawns[clnt.Position + 1].transform);
+            respawnPos = redTeamSpawns[clnt.Position + 1].transform;
+            player = Instantiate((myPosition == clnt.Position) ? pfPlayer : pfTheOther, respawnPos);
             player.GetComponent<MeshRenderer>().material.color = Color.red;
             player.name = clnt.Name;
             player.tag = (isRedTeam) ? ElementStrings.MYTEAMTAG : ElementStrings.ENEMYTAG;
             player.transform.SetParent(transform.Find("/RedTeam"));
 
-            redPlayers[clnt.Position].Init(roomContext.RoomId, clnt, player);
+            redPlayers[clnt.Position].Init(roomContext.RoomId, clnt, player, respawnPos);
             playerMap[clnt.Name] = redPlayers[clnt.Position];
         }
 
@@ -113,14 +129,14 @@ public class GameManager : MonoBehaviour {
         for(int i = 0; i < blueCount; ++i)
         {
             clnt = roomContext.GetBlueteamClient(i);
-            player = Instantiate((myPosition == clnt.Position) ? pfPlayer : pfTheOther,
-                blueTeamSpawns[clnt.Position % BLUEINDEXSTART + 1].transform);
+            respawnPos = blueTeamSpawns[clnt.Position % BLUEINDEXSTART + 1].transform;
+            player = Instantiate((myPosition == clnt.Position) ? pfPlayer : pfTheOther, respawnPos);
             player.GetComponent<MeshRenderer>().material.color = Color.blue;
             player.name = clnt.Name;
             player.tag = (!isRedTeam) ? ElementStrings.MYTEAMTAG : ElementStrings.ENEMYTAG;
             player.transform.SetParent(transform.Find("/BlueTeam"));
 
-            bluePlayers[clnt.Position % BLUEINDEXSTART].Init(roomContext.RoomId, clnt, player);
+            bluePlayers[clnt.Position % BLUEINDEXSTART].Init(roomContext.RoomId, clnt, player, respawnPos);
             playerMap[clnt.Name] = bluePlayers[clnt.Position % BLUEINDEXSTART];
         }
 
@@ -131,44 +147,50 @@ public class GameManager : MonoBehaviour {
         SetUserInfoPool();
     }
 
-    private void SetUserInfoPool()
+    private void UpdateWorldState(WorldState worldState)
     {
-        //// red team
-        //for(int i = 0; i < redPlayers.Length; ++i)
-        //{
-        //    userInfo[i, 0].text = redPlayers[i].Client.Name;
-        //    userInfo[i, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
-        //        redPlayers[i].State.KillCount, redPlayers[i].State.DeathCount);
-        //}
+        if(worldState.ClntName != myContext.Client.Name)
+        {
+            GameObject player = playerMap[worldState.ClntName].Player;
+            Text healthText = player.transform.GetChild(1).GetChild(0).GetComponent<Text>();
+            playerMap[worldState.ClntName].UpdateTransform(worldState.Transform);
+            playerMap[worldState.ClntName].WorldState.Health = worldState.Health;
+            playerMap[worldState.ClntName].WorldState.KillPoint = worldState.KillPoint;
+            playerMap[worldState.ClntName].WorldState.DeathPoint = worldState.DeathPoint;
+            playerMap[worldState.ClntName].WorldState.AnimState = worldState.AnimState;
 
-        //// blue team
-        //for(int i = 0; i < bluePlayers.Length; ++i)
-        //{
-        //    userInfo[i + BLUEINDEXSTART, 0].text = bluePlayers[i].Client.Name;
-        //    userInfo[i + BLUEINDEXSTART, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
-        //        bluePlayers[i].State.KillCount, bluePlayers[i].State.DeathCount);
-        //}
+            if (worldState.AnimState == PlayerContext.DEATH)
+                healthText.text = "Death";
+            else
+                healthText.text = worldState.Health.ToString();
+
+            if (worldState.Fired)
+            {
+                Transform firePos = player.transform.GetChild(0);
+                GameObject _bullet = Instantiate(pfBullet, firePos.position, firePos.rotation);
+                _bullet.GetComponent<BulletCtrl>().Shooter = worldState.ClntName;
+                Debug.Log(_bullet.GetComponent<BulletCtrl>().Shooter);
+            }
+
+            if(worldState.Hit && worldState.AnimState == PlayerContext.DEATH)
+            {
+                HitState hitState = worldState.HitState;
+                killLogMgr.PostKillLog(hitState.From, hitState.To);
+                if (hitState.From == myContext.Client.Name)
+                {
+                    //만약 내가 죽였다면, kill point 올리기
+                    myContext.WorldState.KillPoint++;
+                }
+            }
+        }
     }
 
-    private void CreateUserInfoPool(int size=16)
+    private void PopMessage(object obj, Type type)
     {
-        userInfoPool = new GameObject[size];
-        userInfo = new Text[size, 2];
-        for(int i = 0; i < size; ++i)
+        if (type.Name == MessageTypeStrings.WORLDSTATE)
         {
-            userInfoPool[i] = Instantiate(pfUserInfo);
-            userInfo[i, 0] = userInfoPool[i].transform.Find(ElementStrings.USERNAME_PANEL).GetComponent<Text>();
-            userInfo[i, 1] = userInfoPool[i].transform.Find(ElementStrings.KDASTATE).GetComponent<Text>();
-
-            if (i < 8)
-            {
-                userInfoPool[i].transform.SetParent(redTeamInfo.transform, false);
-                
-            }
-            else
-            {
-                userInfoPool[i].transform.SetParent(blueTeamInfo.transform, false);
-            }
+            //Debug.Log("Update WorldState");
+            UpdateWorldState((WorldState)obj);
         }
     }
 
@@ -181,106 +203,68 @@ public class GameManager : MonoBehaviour {
         CreateUserInfoPool();
     }
 
+    private void CreateUserInfoPool(int size = 16)
+    {
+        userInfoPool = new GameObject[size];
+        userInfo = new Text[size, 2];
+        for (int i = 0; i < size; ++i)
+        {
+            userInfoPool[i] = Instantiate(pfUserInfo);
+            userInfo[i, 0] = userInfoPool[i].transform.Find(ElementStrings.USERNAME_PANEL).GetComponent<Text>();
+            userInfo[i, 1] = userInfoPool[i].transform.Find(ElementStrings.KDASTATE).GetComponent<Text>();
+            
+            if (i < 8)
+            {
+                userInfoPool[i].transform.SetParent(redTeamInfo.transform, false);
+            }
+            else
+            {
+                userInfoPool[i].transform.SetParent(blueTeamInfo.transform, false);
+            }
+        }
+    }
+
+    private void SetUserInfoPool()
+    {
+        // red team
+        for (int i = 0; i < redPlayers.Length; ++i)
+        {
+            userInfo[i, 0].text = redPlayers[i].Client.Name;
+            userInfo[i, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
+                redPlayers[i].WorldState.KillPoint, redPlayers[i].WorldState.DeathPoint);
+        }
+
+        // blue team
+        for (int i = 0; i < bluePlayers.Length; ++i)
+        {
+            userInfo[i + BLUEINDEXSTART, 0].text = bluePlayers[i].Client.Name;
+            userInfo[i + BLUEINDEXSTART, 1].text = string.Format("{0, 3:D3}/{1, 3:D3}",
+                bluePlayers[i].WorldState.KillPoint, bluePlayers[i].WorldState.DeathPoint);
+        }
+    }
+
+    private void UpdateUserInfoPool()
+    {
+        // red team
+        for (int i = 0; i < redPlayers.Length; ++i)
+        {
+            userInfo[i, 1].text = string.Format("{0}/{1}",
+                redPlayers[i].WorldState.KillPoint, redPlayers[i].WorldState.DeathPoint);
+        }
+
+        // blue team
+        for (int i = 0; i < bluePlayers.Length; ++i)
+        {
+            userInfo[i + BLUEINDEXSTART, 1].text = string.Format("{0}/{1}",
+                bluePlayers[i].WorldState.KillPoint, bluePlayers[i].WorldState.DeathPoint);
+        }
+    }
+
     private void ChangeGridCellSize()
     {
         Vector2 panelVector = redTeamInfo.GetComponent<RectTransform>().sizeDelta;
         Vector2 newCellVector = new Vector2(panelVector.x, panelVector.y / 8);
         redTeamInfo.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
         blueTeamInfo.GetComponent<GridLayoutGroup>().cellSize = newCellVector;
-    }
-
-    private void UpdateWorldState(WorldState worldState)
-    {
-        if(worldState.ClntName != myContext.Client.Name)
-        {
-            playerMap[worldState.ClntName].UpdateTransform(worldState.Transform);
-            if(worldState.Fired)
-            {
-                GameObject firer = playerMap[worldState.ClntName].Player;
-                Transform firePos = firer.transform.GetChild(0);
-                Instantiate(pfBullet, firePos.position, firePos.rotation);
-            }
-        }
-    }
-
-    private void UpdatePlayerState(PlayState playState)
-    {
-        if (playState.ClntName != myContext.Client.Name)
-        {
-            playerMap[playState.ClntName].UpdateTransform(playState.Transform);
-        }
-    }
-
-    public void SendFireBulletEvent(string fromClnt)
-    {
-        Debug.Log(string.Format("{0} in Room {1} is fired!", fromClnt, roomContext.RoomId));
-
-        Data request = new Data();
-        request.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.FIRE_BULLET;
-        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.RoomId);
-        request.DataMap[MessageTypeStrings.MESSAGEFROM] = fromClnt;
-
-        _packetManager.PackMessage(protoObj: request);
-    }
-
-    private void HandleFireBulletEvent(string fromClnt)
-    {
-        //Debug.Log(string.Format("{0} was fired!", fromClnt));
-        if (fromClnt == myContext.Player.name) return;
-
-        GameObject firer = playerMap[fromClnt].Player;
-
-        Transform firePos = firer.transform.GetChild(0);
-        //Debug.Log(string.Format("FirePos Name is {0}", firePos.gameObject.name));
-        Instantiate(pfBullet, firePos.position, firePos.rotation);
-    }
-
-    public void SendBeShotEvent(string fromClnt, string toClnt)
-    {
-        Data request = new Data();
-        request.DataMap[MessageTypeStrings.CONTENT_TYPE] = MessageTypeStrings.BE_SHOT;
-        request.DataMap[MessageTypeStrings.ROOMID] = Convert.ToString(roomContext.RoomId);
-        request.DataMap[MessageTypeStrings.MESSAGEFROM] = fromClnt;
-        request.DataMap[MessageTypeStrings.MESSAGETO] = toClnt;
-        //request.DataMap["hitType"] = "";
-
-        _packetManager.PackMessage(protoObj: request);
-    }
-
-    private void HandleBeShotEvent()
-    {
-
-    }
-
-    private void PopMessage(object obj, Type type)
-    {
-        if (type.Name == MessageTypeStrings.DATA)
-        {
-            //Data response = (Data)obj;
-            //string contentType = response.DataMap[MessageTypeStrings.CONTENT_TYPE];
-            //switch (contentType)
-            //{
-                //case MessageTypeStrings.FIRE_BULLET:
-                    //string fromClnt = response.DataMap[MessageTypeStrings.MESSAGEFROM];
-                   // HandleFireBulletEvent(fromClnt);
-                   // break;
-                //case "BE_SHOT":
-                //    fromClnt = response.DataMap["fromClnt"];
-                //    string toClnt = response.DataMap["toClnt"];
-                //    Debug.Log(string.Format("{0} was shot by {1}", toClnt, fromClnt));
-                //    //HandleBeShotEvent();
-                //    break;
-            //}
-        }
-        else if (type.Name == MessageTypeStrings.PLAYSTATE)
-        {
-            Debug.Log("Update PlayState");
-            UpdatePlayerState((PlayState)obj);
-        }
-        else if (type.Name == MessageTypeStrings.WORLDSTATE)
-        {
-            Debug.Log("Update WorldState");
-            UpdateWorldState((WorldState)obj);
-        }
     }
 }
