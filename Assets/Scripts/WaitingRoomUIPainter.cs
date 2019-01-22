@@ -9,10 +9,14 @@ public class WaitingRoomUIPainter : ScriptableObject {
     private GameObject blueList;
     private GameObject readyBtn;
     private GameObject startBtn;
+    private GameObject errorWindow;
     private GameObject[] eachUserPrefabPool;
 
     private Text chatContents;
+    private Text errorMessageTextField;
     private Text[] usernameTextArray;
+
+    private ScrollRect chatScrollRect;
 
     private RoomContext rContext;
 
@@ -31,6 +35,51 @@ public class WaitingRoomUIPainter : ScriptableObject {
         CreateUserPrefabPool();
         AssignPrefabsToEachList();
         InitReadyButton();
+        InitErrorWindow();
+    }
+    public void Draw()
+    {   
+        DrawRedTeam();
+        DrawBlueTeam();
+        if (rContext.Host)
+            DisplayStartButton();
+    }
+
+    public void AddMessageToChatWindow(string msg)
+    {
+        chatContents.text += msg + "\n";
+        chatScrollRect.verticalNormalizedPosition = 0;
+    }
+
+    public void DisplayErrorMessage(string msg)
+    {
+        errorMessageTextField.text = msg;
+        errorWindow.SetActive(true);
+    }
+
+    private void OnEnable()
+    {
+        eachUserPrefab = (GameObject)Resources.Load(PathStrings.EACHUSER);
+        redList = GameObject.Find(ElementStrings.REDTEAMLIST);
+        blueList = GameObject.Find(ElementStrings.BLUETEAMLIST);
+        chatContents = GameObject.Find(ElementStrings.CHAT_CONTENTHOLDER).GetComponent<Text>();
+        chatScrollRect = GameObject.Find(ElementStrings.MESSAGE_PANEL).GetComponent<ScrollRect>();
+        errorWindow = (GameObject)Instantiate(Resources.Load(PathStrings.ERROR_MESSAGE_PANEL));
+        ChangeGridCellSize();
+    }
+
+    private void InitErrorWindow()
+    {
+        GameObject window = errorWindow.transform.Find(ElementStrings.ERRORMESSAGE_WINDOW).gameObject;
+        errorMessageTextField = window.transform.Find(ElementStrings.ERRORMESSAGE_TEXTFIELD).GetComponent<Text>();
+
+        Button closeButton = window.transform.Find(ElementStrings.CLOSE_BTN).GetComponent<Button>();
+        closeButton.onClick.AddListener(delegate { errorWindow.SetActive(false); });
+
+        GameObject mainCanvas = GameObject.Find(ElementStrings.CANVAS);
+        errorWindow.transform.SetParent(mainCanvas.transform, false);
+        errorWindow.transform.SetAsLastSibling();
+        errorWindow.SetActive(false);
     }
 
     private void InitReadyButton()
@@ -43,28 +92,6 @@ public class WaitingRoomUIPainter : ScriptableObject {
     {
         readyBtn.SetActive(false);
         startBtn.SetActive(true);
-    }
-
-    public void Draw()
-    {   
-        DrawRedTeam();
-        DrawBlueTeam();
-        if (rContext.Host)
-            DisplayStartButton();
-    }
-
-    public void AddMessageToChatWindow(string msg)
-    {
-        chatContents.text += msg + "\n";
-    }
-
-    private void OnEnable()
-    {
-        eachUserPrefab = (GameObject)Resources.Load(PathStrings.EACHUSER);
-        redList = GameObject.Find(ElementStrings.REDTEAMLIST);
-        blueList = GameObject.Find(ElementStrings.BLUETEAMLIST);
-        chatContents = GameObject.Find(ElementStrings.CHAT_INPUTFIELD).GetComponent<Text>();
-        ChangeGridCellSize();
     }
 
     private void CreateUserPrefabPool()

@@ -40,7 +40,8 @@ public static class ElementStrings
 
     public const string REDTEAMLIST = "RedTeamList";
     public const string BLUETEAMLIST = "BlueTeamList";
-    public const string CHAT_INPUTFIELD = "ChatMessage";
+    public const string CHAT_CONTENTHOLDER = "ChatMessage";
+    public const string MESSAGE_PANEL = "MessagePanel";
     public const string USERNAME_PANEL = "UserName";
     public const string READY_BTN = "ReadyBtn";
     public const string START_BTN = "StartBtn";
@@ -77,6 +78,7 @@ public static class MessageTypeStrings
     public const string MY_POSITION = "CLIENT_POSITION";
     public const string CHAT_MESSAGE = "CHAT_MESSAGE";
     public const string START_GAME = "START_GAME";
+    public const string REJECT_START_GAME = "REJECT_START_GAME";
 
     public const string CLIENT = "Client";
     public const string ROOMID = "roomId";
