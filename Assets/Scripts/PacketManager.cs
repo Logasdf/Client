@@ -125,6 +125,12 @@ public class PacketManager : MonoBehaviour
 
     private object DeserializeMessageBody(byte[] buffer, int start, int length, Type type)
     {
+        if (length < 0 || start + length > buffer.Length)
+        {
+            Debug.Log("Out of Range!!");
+            return null;
+        }
+
         object obj = Activator.CreateInstance(type);
         try
         {

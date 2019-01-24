@@ -187,6 +187,12 @@ public class GameManager : MonoBehaviour {
 
     private void PopMessage(object obj, Type type)
     {
+        if(obj == null)
+        {
+            Debug.Log("Object is null...");
+            return;
+        }
+
         if (type.Name == MessageTypeStrings.WORLDSTATE)
         {
             //Debug.Log("Update WorldState");
