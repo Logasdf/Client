@@ -127,7 +127,8 @@ public class PacketManager : MonoBehaviour
     {
         if (length < 0 || start + length > buffer.Length)
         {
-            Debug.Log("Out of Range!!");
+            Debug.Log(string.Format("Out of Range, length: {0}, start: {1}, buffer: {2}",
+                length, start, buffer.Length));
             return null;
         }
 
