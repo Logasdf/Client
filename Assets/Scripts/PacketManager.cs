@@ -8,15 +8,18 @@ using Assets.Scripts;
 public class PacketManager : MonoBehaviour
 {
     public delegate void HandleMessage(object obj, Type type);
-
-    private const int BUF_SIZE = 2048;
-    private static PacketManager instance;
     public PacketManager Instance { get { return instance; } }
-    private ServerConnection connection;
-    private CodedOutputStream cos;
-    private byte[] sendBuffer;
-    private HandleMessage handleMessage;
 
+    private static PacketManager instance;
+    private ServerConnection connection;
+    private HandleMessage handleMessage;
+    private byte[] sendBuffer;
+    private byte[] backupBuffer;
+    private CodedOutputStream cos;
+    private const int SENDBUF_SIZE = 4096;
+    private const int BACKUPBUF_SIZE = 512;
+    private bool backupBufferHasData;
+    private int backupBufferCurIdx;
 
     public void SetHandleMessage(HandleMessage hm)
     {
@@ -61,7 +64,10 @@ public class PacketManager : MonoBehaviour
         instance = this;
         DontDestroyOnLoad(gameObject);
         AttachToServerAsDelegate();
-        sendBuffer = new byte[BUF_SIZE];
+        sendBuffer = new byte[SENDBUF_SIZE];
+        backupBuffer = new byte[BACKUPBUF_SIZE];
+        backupBufferHasData = false;
+        backupBufferCurIdx = 0;
     }
 
     private void ClearBuffer()
@@ -78,20 +84,71 @@ public class PacketManager : MonoBehaviour
     private void UnpackProcess(byte[] buffer, int readBytes)
     {
         bool hasBody, hasMore = true;
-        int type, length, start = 0;
+        int type = 0, length = 0, start = 0, remainBytes = readBytes;
+        
+        if(backupBufferHasData)
+        {
+            if(backupBufferCurIdx < 8) //헤더 정보조차 다 오지 않은 상태를 백업해둔 경우
+            {
+                int preferredAmount = 8 - backupBufferCurIdx;
+                Array.Copy(buffer, 0, backupBuffer, backupBufferCurIdx, preferredAmount);
+
+                backupBufferCurIdx += preferredAmount;
+                start += preferredAmount;
+
+                hasBody = UnpackHeader(backupBuffer, 0, ref type, ref length);
+                if(hasBody)
+                {
+                    UnpackMessage(buffer, start, type, length);
+                    start += length;
+                }
+            }
+            else //헤더 이상의 정보가 있음
+            {
+                UnpackHeader(backupBuffer, 0, ref type, ref length); // 무조건 있어야함 바디가, 없으면 들어있을 이유 X
+                //부족한 byte수를 계산해야함
+                int preferredAmount = length - (backupBufferCurIdx - 8);
+                Array.Copy(buffer, 0, backupBuffer, backupBufferCurIdx, preferredAmount);
+                UnpackMessage(backupBuffer, 8, type, length);
+                backupBufferCurIdx += preferredAmount;
+                start += preferredAmount;
+            }
+            Array.Clear(backupBuffer, 0, backupBufferCurIdx);
+            backupBufferCurIdx = 0;
+            backupBufferHasData = false;
+        }
 
         while (hasMore)
         {
             type = length = 0;
+            if(remainBytes < 8) // 헤더도 못읽을 경우에 현재 인덱스부터 remainBytes만큼 백업버퍼에 저장
+            {
+                Array.Copy(buffer, start, backupBuffer, backupBufferCurIdx, remainBytes);
+                backupBufferCurIdx += remainBytes;
+                backupBufferHasData = true;
+                return;
+            }
+            
             hasBody = UnpackHeader(buffer, start, ref type, ref length);
+            remainBytes -= 8;
             start += 8;
+
             if (hasBody)
             {
+                if(remainBytes < length)
+                {
+                    start -= 8;
+                    remainBytes += 8;
+                    Array.Copy(buffer, start, backupBuffer, backupBufferCurIdx, remainBytes);
+                    backupBufferCurIdx += remainBytes;
+                    backupBufferHasData = true;
+                    return;
+                }
                 UnpackMessage(buffer, start, type, length);
                 start += length;
+                remainBytes -= length;
             }
-
-            hasMore = (readBytes > start) ? true : false;
+            hasMore = remainBytes > 0 ? true : false;
         }
     }
 
@@ -125,13 +182,6 @@ public class PacketManager : MonoBehaviour
 
     private object DeserializeMessageBody(byte[] buffer, int start, int length, Type type)
     {
-        if (length < 0 || start + length > buffer.Length)
-        {
-            Debug.Log(string.Format("Out of Range, length: {0}, start: {1}, buffer: {2}",
-                length, start, buffer.Length));
-            return null;
-        }
-
         object obj = Activator.CreateInstance(type);
         try
         {

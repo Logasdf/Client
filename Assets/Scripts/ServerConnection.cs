@@ -75,7 +75,7 @@ public class ServerConnection : MonoBehaviour
 
     private async Task StartListeningThread()
     {
-        const int BUF_SIZE = 4096;
+        const int BUF_SIZE = 8192;
         byte[] buffer = new byte[BUF_SIZE];
 
         while (!isEnd)
