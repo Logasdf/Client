@@ -82,7 +82,7 @@ public class ServerConnection : MonoBehaviour
         {
             int readBytes = await nStream.ReadAsync(buffer, 0, BUF_SIZE);
             receiveCallback(buffer, readBytes);
-            Array.Clear(buffer, 0, BUF_SIZE);
+            Array.Clear(buffer, 0, readBytes);
         }
     }
 }

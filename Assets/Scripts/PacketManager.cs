@@ -113,6 +113,7 @@ public class PacketManager : MonoBehaviour
                 backupBufferCurIdx += preferredAmount;
                 start += preferredAmount;
             }
+            remainBytes -= start;
             Array.Clear(backupBuffer, 0, backupBufferCurIdx);
             backupBufferCurIdx = 0;
             backupBufferHasData = false;
