@@ -158,7 +158,6 @@ public class PacketManager : MonoBehaviour
         CodedInputStream cis = new CodedInputStream(buffer, start, 8);
         type = (int)cis.ReadFixed32();
         length = (int)cis.ReadFixed32();
-
         if (length != 0)
             return true;
 

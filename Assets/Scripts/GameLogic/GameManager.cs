@@ -195,7 +195,6 @@ public class GameManager : MonoBehaviour {
 
         if (type.Name == MessageTypeStrings.WORLDSTATE)
         {
-            //Debug.Log("Update WorldState");
             UpdateWorldState((WorldState)obj);
         }
     }
