@@ -62,7 +62,7 @@ public class KillLogMgr : MonoBehaviour {
             log = list.GetLog(i);
             string logMessage = string.Format("{0}->{1}", log.Item1, log.Item2);
             Debug.Log(logMessage);
-            killLog[displayCnt].text = logMessage;
+            killLog[displayCnt++].text = logMessage;
             if (!list.IsCalled(i))
             {
                 list.Called(i);
